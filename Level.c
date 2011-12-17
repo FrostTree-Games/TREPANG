@@ -3,8 +3,25 @@
 #include "Level.h"
 #include "SDL/SDL.h"
 
+int hitTest(aX, aY, aW, aH, bX, bY, bW, bH)
+{
+	if (aY + aH <= bY || aY >= bY + bH)
+	{
+		return 0;
+	}
+
+	if (aX + aW <= bX || aX >= bX + bW)
+	{
+		return 0;
+	}
+
+	return 1;
+}
+
 void updatePlayerLogic(Uint32 currTime)
 {
+	int i;
+
 	Uint32 tDiff = currTime - pLastTime;
 	
 	float pXSpeed = 0.0f;
@@ -38,17 +55,41 @@ void updatePlayerLogic(Uint32 currTime)
 
 	px += (int)((pXSpeed/1000.0)*tDiff);
 	py += (int)((pYSpeed/1000.0)*tDiff);
+	
+	for (i = 0; i < blockCount; i++)
+	{
+		if (hitTest(px, py, 16, 16, blockList[i].x, blockList[i].y, 16, 16))
+		{
+			if (pXSpeed != 0.0f)
+			{
+				px -= (int)((pXSpeed/1000.0)*tDiff);
+			}
+			if (pYSpeed != 0.0f)
+			{
+				py -= (int)((pYSpeed/1000.0)*tDiff);
+			}
+		}
+	}
+
 	pLastTime = currTime;
 }
 
 int doLevel(SDL_Surface* screen)
 {
 	int quit = 1;
-
-	int i,j;
+	
+	int i;
 
 	px = 120;
 	py = 120;
+	
+	blockCount = 5;
+	blockList = malloc(blockCount * sizeof(struct block));
+	for (i = 0; i < blockCount; i++)
+	{
+		blockList[i].x = i * 32;
+		blockList[i].y = 64;
+	}
 
 	pLastTime = SDL_GetTicks();
 
@@ -79,15 +120,23 @@ int doLevel(SDL_Surface* screen)
 
 		updatePlayerLogic(currTicks);
 
+                SDL_FillRect(buffer, NULL, SDL_MapRGB(buffer->format, 255,255,255));
+
 		SDL_Rect r = {(Sint16)px, (Sint16)py, 16, 16};
-		SDL_FillRect(buffer, NULL, SDL_MapRGB(buffer->format, 255,255,255));
-		
 		SDL_FillRect(buffer, &r, SDL_MapRGB(buffer->format, 0, 255, 255));
+		
+		for (i = 0; i < blockCount; i++)
+		{
+			SDL_Rect r = {(Sint16)blockList[i].x, (Sint16)blockList[i].y, 16, 16};
+			SDL_FillRect(buffer, &r, SDL_MapRGB(buffer->format, 0, 0, 0));
+		}
+
 		SDL_BlitSurface(buffer, NULL, screen, NULL);
 		SDL_Flip(screen);
 		SDL_Delay(20);
 	}
-
+	
+	free(blockList);
 
 	SDL_FreeSurface(buffer);
 
