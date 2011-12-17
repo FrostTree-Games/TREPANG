@@ -18,6 +18,8 @@ struct block
 struct block* blockList;
 int blockCount;
 
-int doLevel(SDL_Surface* screen);
+SDL_Surface* buffer;
+
+int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight);
 
 

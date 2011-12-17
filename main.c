@@ -63,9 +63,7 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
-	//SDL_Flip(screen);
-	//SDL_Delay(2000);
-	doLevel(screen);
+	doLevel(screen, 320, 240);
 
 	// cleanup
 	gameBackendClose();

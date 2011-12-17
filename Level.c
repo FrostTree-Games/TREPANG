@@ -23,7 +23,7 @@ void updatePlayerLogic(Uint32 currTime)
 	int i;
 
 	Uint32 tDiff = currTime - pLastTime;
-	
+
 	float pXSpeed = 0.0f;
 	float pYSpeed = 0.0f;
 
@@ -55,7 +55,7 @@ void updatePlayerLogic(Uint32 currTime)
 
 	px += (int)((pXSpeed/1000.0)*tDiff);
 	py += (int)((pYSpeed/1000.0)*tDiff);
-	
+
 	for (i = 0; i < blockCount; i++)
 	{
 		if (hitTest(px, py, 16, 16, blockList[i].x, blockList[i].y, 16, 16))
@@ -74,15 +74,37 @@ void updatePlayerLogic(Uint32 currTime)
 	pLastTime = currTime;
 }
 
-int doLevel(SDL_Surface* screen)
+void drawVisuals()
+{
+	int i;
+
+	SDL_FillRect(buffer, NULL, SDL_MapRGB(buffer->format, 255,255,255));
+
+	SDL_Rect r = {(Sint16)(buffer->w)/2, (Sint16)(buffer->h)/2, 16, 16};
+	SDL_FillRect(buffer, &r, SDL_MapRGB(buffer->format, 0, 255, 255));
+
+	for (i = 0; i < blockCount; i++)
+	{
+		if (blockList[i].x > px - (buffer->w)/2 - 16 && blockList[i].x < px + (buffer->w)/2)
+		{
+			if (blockList[i].y > py - (buffer->h)/2 - 16 && blockList[i].y < py + (buffer->h)/2)
+			{
+				SDL_Rect r = {(Sint16)(blockList[i].x - px + ((buffer->w)/2)), (Sint16)(blockList[i].y - py + ((buffer->h)/2)), 16, 16};
+				SDL_FillRect(buffer, &r, SDL_MapRGB(buffer->format, 0, 0, 0));
+			}
+		}
+	}
+}
+
+int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight)
 {
 	int quit = 1;
-	
+
 	int i;
 
 	px = 120;
 	py = 120;
-	
+
 	blockCount = 5;
 	blockList = malloc(blockCount * sizeof(struct block));
 	for (i = 0; i < blockCount; i++)
@@ -95,7 +117,7 @@ int doLevel(SDL_Surface* screen)
 
 	runSpeed = 100.0f;
 
-	SDL_Surface* buffer = SDL_CreateRGBSurface(SDL_SWSURFACE, 320, 240, 32, 0, 0, 0, 0);
+	buffer = SDL_CreateRGBSurface(SDL_SWSURFACE, 320, 240, 32, 0, 0, 0, 0);
 
 	while(quit == 1)
 	{
@@ -120,16 +142,7 @@ int doLevel(SDL_Surface* screen)
 
 		updatePlayerLogic(currTicks);
 
-                SDL_FillRect(buffer, NULL, SDL_MapRGB(buffer->format, 255,255,255));
-
-		SDL_Rect r = {(Sint16)px, (Sint16)py, 16, 16};
-		SDL_FillRect(buffer, &r, SDL_MapRGB(buffer->format, 0, 255, 255));
-		
-		for (i = 0; i < blockCount; i++)
-		{
-			SDL_Rect r = {(Sint16)blockList[i].x, (Sint16)blockList[i].y, 16, 16};
-			SDL_FillRect(buffer, &r, SDL_MapRGB(buffer->format, 0, 0, 0));
-		}
+		drawVisuals();
 
 		SDL_BlitSurface(buffer, NULL, screen, NULL);
 		SDL_Flip(screen);
