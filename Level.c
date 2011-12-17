@@ -1,4 +1,27 @@
+/*Copyright (C) 2011 FrostTree Games
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ * of the Software, and to permit persons to whom the Software is furnished to do
+ * so, subject to the following conditions:
+ * 
+ *  The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ */
+
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "Level.h"
 #include "SDL/SDL.h"
@@ -96,22 +119,59 @@ void drawVisuals()
 	}
 }
 
+void interpretLevel(int grid[][75])
+{
+	int i,j;
+
+	blockCount = 0;
+	blockList = malloc(100 * 75 * sizeof(struct block));
+
+	for (i = 0; i < 100; i++)
+	{
+		for (j = 0; j < 75; j++)
+		{
+			if (grid[i][j] == 1)
+			{
+				blockList[blockCount].x = i*16;
+				blockList[blockCount].y = j*16;
+				blockCount++;
+			}
+		}
+	}
+}
+
 int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight)
 {
 	int quit = 1;
 
-	int i;
+	int i,j;
 
-	px = 120;
-	py = 120;
+	px = -30;
+	py = 40;
 
-	blockCount = 5;
+	int grid[100][75];
+
+	for (i = 0; i < 100; i += 2)
+	{
+		for (j = 0; j < 75; j += 2)
+		{
+			int res = rand() % 2;
+
+			grid[i][j] = res;
+			grid[i+1][j] = res;
+			grid[i][j+1] = res;
+			grid[i+1][j+1] = res;
+		}
+	}
+	interpretLevel(grid);
+
+	/*blockCount = 5;
 	blockList = malloc(blockCount * sizeof(struct block));
 	for (i = 0; i < blockCount; i++)
 	{
 		blockList[i].x = i * 32;
 		blockList[i].y = 64;
-	}
+	}                      */
 
 	pLastTime = SDL_GetTicks();
 
