@@ -140,29 +140,135 @@ void interpretLevel(int grid[][75])
 	}
 }
 
+void generateMap(int grid[][75])
+{
+	int i,j;
+	
+	for (i = 0; i < 100; i++)
+	{
+		for (j = 0; j < 75; j++)
+		{
+			if (i == 0 || j == 0 || i == 99 || j == 99)
+			{
+				grid[i][j] = 1;
+			}
+			else
+			{
+				grid[i][j] = rand() % 2;
+			}
+		}
+	}
+	
+	int grid2[100][75];
+	for (i = 0; i < 100; i++)
+	{
+		for (j = 0; j < 75; j++)
+		{
+			grid2[i][j] = grid[i][j];
+		}
+	}
+
+	for (i = 0; i < 100; i++)
+	{
+		for (j = 0; j < 75; j++)
+		{
+			if (i == 0 || j == 0 || i == 99 || j == 99)
+			{
+				continue;
+			}
+			else
+			{
+				int count = 0;
+				int q,l;
+
+				for (q = -1; q < 2; q++)
+				{
+					for (l = -1; l < 2; l++)
+					{
+						if (grid2[i + q][j + l] == 1)
+						{
+							count++;
+						}
+					}
+				}
+				if (count < 5)
+				{
+					grid[i][j] = 0;
+				}
+				else if (count > 5)
+				{
+					grid[i][j] = 1;
+				}
+			}
+		}
+	}
+
+	for (i = 0; i < 100; i++)
+	{
+		for (j = 0; j < 75; j++)
+		{
+			grid2[i][j] = grid[i][j];
+		}
+	}
+	for (i = 0; i < 100; i++)
+	{
+		for (j = 0; j < 75; j++)
+		{
+			if (i == 0 || j == 0 || i == 99 || j == 99)
+			{
+				continue;
+			}
+			else
+			{
+				int count = 0;
+				int q,l;
+
+				for (q = -1; q < 2; q++)
+				{
+					for (l = -1; l < 2; l++)
+					{
+						if (grid2[i + q][j + l] == 1)
+						{
+							count++;
+						}
+					}
+				}
+				if (count < 5)
+				{
+					grid[i][j] = 0;
+				}
+				else if (count > 5)
+				{
+					grid[i][j] = 1;
+				}
+			}
+		}
+	}
+	
+	for (i = 0; i < 100; i++)
+	{
+		if (i < 75)
+		{
+			grid[0][i] = 1;
+			grid[99][i] = 1;
+		}
+		grid[i][0] = 1;
+		grid[i][74] = 1;
+	}
+}
+
 int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight)
 {
 	int quit = 1;
 
 	int i,j;
 
-	px = -30;
-	py = 40;
+	px = 48;
+	py = 48;
 
 	int grid[100][75];
 
-	for (i = 0; i < 100; i += 2)
-	{
-		for (j = 0; j < 75; j += 2)
-		{
-			int res = rand() % 2;
-
-			grid[i][j] = res;
-			grid[i+1][j] = res;
-			grid[i][j+1] = res;
-			grid[i+1][j+1] = res;
-		}
-	}
+	generateMap(grid);
 	interpretLevel(grid);
 
 	/*blockCount = 5;
