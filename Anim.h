@@ -6,9 +6,11 @@ struct animation
 	SDL_Surface* fSheet;
 	int animLength;
 	int frameWidth;
-	int frameHeight;
 	float frameSpeed; //number of ms per frame
 };
+
+struct animation* animationList;
+int animationNum;
 
 int loadAnims();
 

@@ -23,6 +23,7 @@
 #include <stdio.h>
 
 #include "Level.h"
+#include "Anim.h"
 #include "SDL/SDL.h"
 
 // this data type will be used for the game's screen
@@ -62,8 +63,15 @@ int main(int argc, char* argv[])
 	{
 		return -1;
 	}
+	
+	if (loadAnims() == -1)
+	{
+		return -1;
+	}
 
 	doLevel(screen, 320, 240);
+
+	freeAnims();
 
 	// cleanup
 	gameBackendClose();
