@@ -22,6 +22,7 @@
 
 #include <stdio.h>
 
+#include "Level.h"
 #include "SDL/SDL.h"
 
 // this data type will be used for the game's screen
@@ -62,8 +63,9 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
-	SDL_Flip(screen);
-	SDL_Delay(2000);
+	//SDL_Flip(screen);
+	//SDL_Delay(2000);
+	doLevel(screen);
 
 	// cleanup
 	gameBackendClose();
