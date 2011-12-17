@@ -3,19 +3,56 @@
 #include "Level.h"
 #include "SDL/SDL.h"
 
+void updatePlayerLogic(Uint32 currTime)
+{
+	Uint32 tDiff = currTime - pLastTime;
+	
+	float pXSpeed = 0.0f;
+	float pYSpeed = 0.0f;
+
+	if (keystates[SDLK_RIGHT])
+	{
+		pXSpeed = runSpeed;
+	}
+	else if (keystates[SDLK_LEFT])
+	{
+		pXSpeed = -runSpeed;
+	}
+	else
+	{
+		pXSpeed = 0.0f;
+	}
+
+	if (keystates[SDLK_DOWN])
+	{
+		pYSpeed = runSpeed;
+	}
+	else if (keystates[SDLK_UP])
+	{
+		pYSpeed = -runSpeed;
+	}
+	else
+	{
+		pYSpeed = 0.0f;
+	}
+
+	px += (int)((pXSpeed/1000.0)*tDiff);
+	py += (int)((pYSpeed/1000.0)*tDiff);
+	pLastTime = currTime;
+}
+
 int doLevel(SDL_Surface* screen)
 {
 	int quit = 1;
 
 	int i,j;
 
-	int x = 120;
-	int y = 120;
+	px = 120;
+	py = 120;
 
-	int pXSpeed = 0;
-	int pYSpeed = 0;
+	pLastTime = SDL_GetTicks();
 
-	float runSpeed = 3;
+	runSpeed = 100.0f;
 
 	SDL_Surface* buffer = SDL_CreateRGBSurface(SDL_SWSURFACE, 320, 240, 32, 0, 0, 0, 0);
 
@@ -37,36 +74,12 @@ int doLevel(SDL_Surface* screen)
 			quit = 0;
 		}
 
-		if (keystates[SDLK_RIGHT])
-		{
-			pXSpeed = (int)runSpeed;
-		}
-		else if (keystates[SDLK_LEFT])
-		{
-			pXSpeed = (-1)*(int)runSpeed;
-		}
-		else
-		{
-			pXSpeed = 0;
-		}
+		// time diff
+		Uint32 currTicks = SDL_GetTicks();
 
-		if (keystates[SDLK_DOWN])
-		{
-			pYSpeed = (int)runSpeed;
-		}
-		else if (keystates[SDLK_UP])
-		{
-			pYSpeed = (-1)*(int)runSpeed;
-		}
-		else
-		{
-			pYSpeed = 0;
-		}
+		updatePlayerLogic(currTicks);
 
-		x += pXSpeed;
-		y += pYSpeed;
-
-		SDL_Rect r = {(Sint16)x, (Sint16)y, 16, 16};
+		SDL_Rect r = {(Sint16)px, (Sint16)py, 16, 16};
 		SDL_FillRect(buffer, NULL, SDL_MapRGB(buffer->format, 255,255,255));
 		
 		SDL_FillRect(buffer, &r, SDL_MapRGB(buffer->format, 0, 255, 255));
