@@ -388,6 +388,11 @@ void drawVisuals()
 	
 	for (i = 0; i < enemyCount; i++)
 	{
+		if (enemyList[i].dead == 1)
+		{
+			continue;
+		}
+
 		if (enemyList[i].ex > px - (buffer->w)/2 - 16 && enemyList[i].ex < px + (buffer->w)/2)
 		{
 			if (enemyList[i].ey > py - (buffer->h)/2 - 16 && enemyList[i].ey < py + (buffer->h)/2)
@@ -715,6 +720,7 @@ void locating_start_end( int grid[][75] )
 		enemyList[l].ai = CHILL;
 		enemyList[l].eLastUpdate = SDL_GetTicks();
 		enemyList[l].eFrame = 0;
+                enemyList[l].dead = 0;
 		
 		l++;
 	}

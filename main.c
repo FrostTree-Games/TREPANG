@@ -79,9 +79,7 @@ int main(int argc, char* argv[])
 		return -1;
 	} */
 
-	//playTestBGM();
-
-	playBGM();
+	//playBGM();
 
 	doLevel(screen, 320, 240);
 
