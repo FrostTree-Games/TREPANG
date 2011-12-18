@@ -335,7 +335,15 @@ void updateEnemy(struct enemy* en, Uint32 currTime)
 		{
 			en->eLastUpdate = currTime;
 			en->eFrame++;
-			en->eFrame = en->eFrame % ((starFishSheet->w)/16);
+			if (en->dying == 1 && en->eFrame >= ((starFishDeathSheet->w)/16))
+			{
+				en->dead = 1;
+				return;
+			}
+			else
+			{
+				en->eFrame = en->eFrame % ((starFishSheet->w)/16);
+			}
 		}
 		break;
 		case WIGGLE:
@@ -344,9 +352,15 @@ void updateEnemy(struct enemy* en, Uint32 currTime)
 		break;
 	}
 
-	if (hitTest(en->ex, en->ey, 16, 16, organX, organY, 16, 16))
+	if (hitTest(en->ex, en->ey, 16, 16, organX, organY, 16, 16) && en->dying == 0)
 	{
-		en->dead = 1;
+		switch (en->ai)
+		{
+			case CHILL:
+			en->dying = 1;
+			en->eFrame = 0;
+			break;
+		}
 	}
 }
 
@@ -407,7 +421,14 @@ void drawVisuals()
 				switch (enemyList[i].ai)
 				{
 					case CHILL:
-					SDL_BlitSurface(starFishSheet , &rFrom, buffer, &rTo);
+					if (enemyList[i].dying == 1)
+					{
+						SDL_BlitSurface(starFishDeathSheet, &rFrom, buffer, &rTo);
+					}
+					else
+					{
+						SDL_BlitSurface(starFishSheet , &rFrom, buffer, &rTo);
+					}
 					break;
 					default:
 					break;
@@ -768,6 +789,7 @@ int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight)
 	organDeathAnimation3 = IMG_Load("gfx/cucumberGib3Die.png");
 	
 	starFishSheet = IMG_Load("gfx/starfishIdle.png");
+	starFishDeathSheet = IMG_Load("gfx/starfishDie.png");
 
 	organOnScreen = 0;
 	organX = 0;
