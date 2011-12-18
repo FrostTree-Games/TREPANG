@@ -323,6 +323,11 @@ void updateOrgan(Uint32 currTime)
 
 void updateEnemy(struct enemy* en, Uint32 currTime)
 {
+	if (en->dead == 1)
+	{
+		return;
+	}
+
 	switch (en->ai)
 	{
 		case CHILL:
@@ -337,6 +342,11 @@ void updateEnemy(struct enemy* en, Uint32 currTime)
 		break;
 		case CHASE:
 		break;
+	}
+
+	if (hitTest(en->ex, en->ey, 16, 16, organX, organY, 16, 16))
+	{
+		en->dead = 1;
 	}
 }
 
@@ -388,12 +398,7 @@ void drawVisuals()
 	
 	for (i = 0; i < enemyCount; i++)
 	{
-		if (enemyList[i].dead == 1)
-		{
-			continue;
-		}
-
-		if (enemyList[i].ex > px - (buffer->w)/2 - 16 && enemyList[i].ex < px + (buffer->w)/2)
+		if (enemyList[i].ex > px - (buffer->w)/2 - 16 && enemyList[i].ex < px + (buffer->w)/2 && enemyList[i].dead == 0)
 		{
 			if (enemyList[i].ey > py - (buffer->h)/2 - 16 && enemyList[i].ey < py + (buffer->h)/2)
 			{
