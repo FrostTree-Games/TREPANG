@@ -10,25 +10,14 @@
 
 int loadAnims()
 {
-	SDL_Surface* loadedImage = NULL;
-
 	animationNum = 1;
 	animationList = malloc(1 * sizeof(struct animation));
 	
-	loadedImage =  IMG_Load("gfx/cucumberidleLeft.png");
-	if (loadedImage != NULL)
-	{
-		animationList[0].fSheet = SDL_DisplayFormat(loadedImage);
-		animationList[0].frameWidth = 16;
-		animationList[0].animLength = (animationList[0].fSheet)->w / animationList[0].frameWidth;
-		animationList[0].frameSpeed = 83.3f;
-		SDL_FreeSurface(loadedImage);
-	}
-	else
-	{
-		perror("ERROR LOADING cucumberidleLeft.png");
-		return -1;
-	}
+	animationList[0].fSheet = IMG_Load("gfx/cucumberidleLeft.png");
+	SDL_SetAlpha(animationList[0].fSheet, 0, 127);
+	animationList[0].frameWidth = 16;
+	animationList[0].animLength = (animationList[0].fSheet)->w / animationList[0].frameWidth;
+	animationList[0].frameSpeed = 83.3f;
 
 	return 0;
 }

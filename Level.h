@@ -40,6 +40,14 @@ struct block
 struct block* blockList;
 int blockCount;
 
+int pFrame;
+Uint32 pLastUpdate;
+
+int lDown;
+int rDown;
+int uDown;
+int dDown;
+
 SDL_Surface* buffer;
 
 int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight);

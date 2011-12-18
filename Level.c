@@ -27,6 +27,8 @@
 
 #include "Level.h"
 #include "SDL/SDL.h"
+#include "SDL/SDL_image.h"
+#include "Anim.h"
 
 #define x_length 100
 #define y_length 75
@@ -57,19 +59,37 @@ void updatePlayerLogic(Uint32 currTime)
 
 	Uint32 tDiff = currTime - pLastTime;
 
+	if (currTime - pLastUpdate > 83)
+	{
+		pLastUpdate = currTime;
+		pFrame++;
+		pFrame = pFrame % ((pCurrentSheet->w)/16);
+	}
+
 	float pXSpeed = 0.0f;
 	float pYSpeed = 0.0f;
-
 	if (keystates[SDLK_RIGHT])
 	{
 		pXSpeed = runSpeed;
 	}
 	else if (keystates[SDLK_LEFT])
 	{
+		if (lDown == 0)
+		{
+			pCurrentSheet = walkLeftSheet;
+			pFrame = 0;
+			lDown = 1;
+		}
 		pXSpeed = -runSpeed;
 	}
 	else
 	{
+		if (lDown == 1)
+		{
+			pCurrentSheet = idleLeftSheet;
+			pFrame = 0;
+			lDown = 0;
+		}
 		pXSpeed = 0.0f;
 	}
 
@@ -113,8 +133,12 @@ void drawVisuals()
 
 	SDL_FillRect(buffer, NULL, SDL_MapRGB(buffer->format, 255,255,255));
 
-	SDL_Rect r = {(Sint16)(buffer->w)/2, (Sint16)(buffer->h)/2, 16, 16};
-	SDL_FillRect(buffer, &r, SDL_MapRGB(buffer->format, 0, 255, 255));
+	//SDL_Rect r = {(Sint16)(buffer->w)/2, (Sint16)(buffer->h)/2, 16, 16};
+	//SDL_FillRect(buffer, &r, SDL_MapRGB(buffer->format, 0, 255, 255));
+	printf("%d\n", 16*pFrame);
+	SDL_Rect rFrom = {(Sint16)(16*pFrame), 0, 16, 16};
+	SDL_Rect rTo = {(Sint16)(buffer->w)/2, (Sint16)(buffer->h)/2, 0, 0};
+	SDL_BlitSurface(pCurrentSheet, &rFrom, buffer, &rTo);
 
 	for (i = 0; i < blockCount; i++)
 	{
@@ -424,7 +448,7 @@ void locating_start_end( int grid[][75] )
 		}
 	//	printf("\n");
 	}
-	print_dijkstra( dijkstra_grid );
+	//print_dijkstra( dijkstra_grid );
 }
 
 
@@ -432,28 +456,28 @@ int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight)
 {
 	int quit = 1;
 
-	//px = 58;
-	//py = 48;
-
 	int grid[100][75];
 
 	generateMap(grid);
 	locating_start_end(grid);
 	interpretLevel(grid);
 
-	/*blockCount = 5;
-	blockList = malloc(blockCount * sizeof(struct block));
-	for (i = 0; i < blockCount; i++)
-	{
-		blockList[i].x = i * 32;
-		blockList[i].y = 64;
-	}                      */
-
 	pLastTime = SDL_GetTicks();
 
 	runSpeed = 100.0f;
+	pFrame = 0;
+	pLastUpdate = pLastTime;
+	lDown = 0;
+	rDown = 0;
+	uDown = 0;
+	dDown = 0;
 
-	buffer = SDL_CreateRGBSurface(SDL_SWSURFACE, 1024, 768, 32, 0, 0, 0, 0);
+	buffer = SDL_CreateRGBSurface(SDL_SWSURFACE, 320, 240, 32, 0, 0, 0, 0);
+
+	idleLeftSheet = IMG_Load("gfx/cucumberidleLeft.png");
+	walkLeftSheet = IMG_Load("gfx/cucumberWalkLeft.png");
+
+	pCurrentSheet = idleLeftSheet;
 
 	while(quit == 1)
 	{
