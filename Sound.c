@@ -21,76 +21,43 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "SDL/SDL.h"
+#include "SDL/SDL_mixer.h"
 
-#include "Level.h"
-#include "Anim.h"
 #include "Sound.h"
 
-// this data type will be used for the game's screen
-SDL_Surface* screen;
-
-int gameBackendSetup()
+int init_sound()
 {
-	// initalizes the SDL library
-	if (SDL_Init (SDL_INIT_EVERYTHING) == -1)
+	//Initialize SDL_mixer
+	if( Mix_OpenAudio( 22050, MIX_DEFAULT_FORMAT, 2, 4096 ) == -1 )
 	{
-		perror("Error on SDL_Init. Check your something");
 		return -1;
 	}
 	
-	// initalizes the screen pointer to the screen
-	if ((screen = SDL_SetVideoMode( 320, 240, 32, SDL_SWSURFACE)) == NULL)
+	testBGM = Mix_LoadMUS("bgm/plantation.ogg");
+	if (testBGM == NULL)
 	{
-		perror("Error on intialzing video memory.");
+		perror("error loading plantation.ogg");
 		return -1;
 	}
-	
-	SDL_WM_SetCaption( "ChordWing", NULL );
 
 	return 0;
 }
 
-int gameBackendClose()
+void playTestBGM()
 {
-	// frees the screen pointer and closes SDL
-	SDL_Quit();
-
-	return 0;
+	if (testBGM != NULL)
+	{
+		Mix_PlayMusic(testBGM, -1);
+	}
 }
 
-int main(int argc, char* argv[])
+void deinit_sound()
 {
-	//setup, exit if fail
-	if (gameBackendSetup() == -1)
-	{
-		return -1;
-	}
-	
-	if (init_sound() == -1)
-	{
-		perror("error on sound initalization");
-		return -1;
-	}
-	
-	/*if (loadAnims() == -1)
-	{
-		return -1;
-	} */
+	Mix_FreeMusic(testBGM);
 
-	playTestBGM();
-	
-
-	doLevel(screen, 320, 240);
-
-	//freeAnims();
-
-	deinit_sound();
-
-	// cleanup
-	gameBackendClose();
-
-	return 0;
+	// close SDL_mixer
+	Mix_CloseAudio();
 }
-
