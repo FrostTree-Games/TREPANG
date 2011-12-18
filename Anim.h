@@ -27,6 +27,8 @@ SDL_Surface* organDeathAnimation1;
 SDL_Surface* organDeathAnimation2;
 SDL_Surface* organDeathAnimation3;
 
+SDL_Surface* starFishSheet;
+
 int loadAnims();
 
 int freeAnims();
