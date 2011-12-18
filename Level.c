@@ -110,38 +110,52 @@ void updatePlayerLogic(Uint32 currTime)
 	if (keystates[SDLK_DOWN])
 	{
 		pYSpeed = runSpeed;
-		if (pDirection == 0)
+		if (dDown == 0)
 		{
-			pCurrentSheet = walkLeftSheet;
+			if (pDirection == 0)
+			{
+				pCurrentSheet = walkLeftSheet;
+				dDown = 1;
+			}
+			else
+			{
+				pCurrentSheet = walkRightSheet;
+				dDown = 1;
+			}
 		}
-		else
-		{
-			pCurrentSheet = walkRightSheet;
-		}	
 	}
 	else if (keystates[SDLK_UP])
 	{
 		pYSpeed = -runSpeed;
-		if (pDirection == 0)
+		if (uDown == 0)
 		{
-			pCurrentSheet = walkLeftSheet;
-		}
-		else
-		{
-			pCurrentSheet = walkRightSheet;
+			if (pDirection == 0)
+			{
+				pCurrentSheet = walkLeftSheet;
+				uDown = 1;
+			}
+			else
+			{
+				pCurrentSheet = walkRightSheet;
+				uDown = 1;
+			}
 		}
 	}
 	else
 	{
-		if (lDown == 0 && rDown == 0)
+		if (uDown == 1 || dDown == 1)
 		{
 			if (pDirection == 0)
 			{
 				pCurrentSheet = idleLeftSheet;
+				uDown = 0;
+				dDown = 0;
 			}
 			else
 			{
 				pCurrentSheet = idleRightSheet;
+				uDown = 0;
+				dDown = 0;
 			}
 			pFrame = 0;
 		}
@@ -152,6 +166,22 @@ void updatePlayerLogic(Uint32 currTime)
 	{
 		if (organOnScreen == 0)
 		{
+			time_t seconds;
+			time(&seconds);
+			srand((unsigned int) seconds);
+
+			switch(rand() % 3)
+			{
+				case 0:
+				organCurrentSheet = organAnimation1;
+				break;
+				case 1:
+				organCurrentSheet = organAnimation2;
+				break;
+				case 2:
+				organCurrentSheet = organAnimation3;
+				break;
+			}
 			organOnScreen = 1;
 			organBirthTime = currTime;
 			organLastTime = organBirthTime;
@@ -160,19 +190,19 @@ void updatePlayerLogic(Uint32 currTime)
 			organY = py;
 			if (pXSpeed != 0.0f)
 			{
-				organXSpeed = pXSpeed*2;
-				organYSpeed = pYSpeed*2;
+				organXSpeed = pXSpeed*1.5;
+				organYSpeed = pYSpeed*1.5;
 			}
 			else
 			{
 				if (pDirection == 0)
 				{
-					organXSpeed = -runSpeed*2;
+					organXSpeed = -runSpeed*1.5;
 					organYSpeed = 0.0f;
 				}
 				else
 				{
-					organXSpeed = runSpeed*2;
+					organXSpeed = runSpeed*1.5;
 					organYSpeed = 0.0f;
 				}
 			}
@@ -202,6 +232,8 @@ void updatePlayerLogic(Uint32 currTime)
 
 void updateOrgan(Uint32 currTime)
 {
+	int i;
+
 	// return if not updating
 	if (organOnScreen == 0)
 	{
@@ -210,14 +242,80 @@ void updateOrgan(Uint32 currTime)
 
 	Uint32 tDiff = currTime - organLastTime;
 	
+	if (currTime - organLastUpdate > 83)
+	{
+		organLastUpdate = currTime;
+		organFrame++;
+		if (organBlowingUp == 1 && organFrame >= ((organCurrentSheet->w)/16))
+		{
+			organBlowingUp = 0;
+			organOnScreen = 0;
+			return;
+		}
+		else
+		{
+			organFrame = organFrame % ((organCurrentSheet->w)/16);
+		}
+	}
+
 	organX += (int)((organXSpeed/1000.0)*tDiff);
 	organY += (int)((organYSpeed/1000.0)*tDiff);
 	
+	for (i = 0; i < blockCount; i++)
+	{
+		if (hitTest(organX, organY, 16, 16, blockList[i].x, blockList[i].y, 16, 16))
+		{
+			//organOnScreen = 0;
+			if (organBlowingUp == 0)
+			{
+				organBlowingUp = 1;
+				organXSpeed = 0.0f;
+				organYSpeed = 0.0f;
+				
+				if (organCurrentSheet == organAnimation1)
+				{
+					organCurrentSheet = organDeathAnimation1;
+				}
+				else if (organCurrentSheet == organAnimation2)
+				{
+					organCurrentSheet = organDeathAnimation2;
+				}
+				else if(organCurrentSheet == organAnimation3)
+				{
+					organCurrentSheet = organDeathAnimation3;
+				}
+				
+				organFrame = 0;
+			}
+		}
+	}
+	
 	// if the elapsed time the organ has been alive is greater than some seconds,
 	// then set the organ to not exist
-	if (currTime - organBirthTime > 500)
+	if (currTime - organBirthTime > 650 && organBlowingUp == 0)
 	{
-		organOnScreen = 0;
+		//organOnScreen = 0;
+		if (organBlowingUp == 0)
+		{
+			organBlowingUp = 1;
+			organXSpeed = 0.0f;
+			organYSpeed = 0.0f;
+			
+			if (organCurrentSheet == organAnimation1)
+			{
+				organCurrentSheet = organDeathAnimation1;
+			}
+			else if (organCurrentSheet == organAnimation2)
+			{
+				organCurrentSheet = organDeathAnimation2;
+			}
+			else if(organCurrentSheet == organAnimation3)
+			{
+				organCurrentSheet = organDeathAnimation3;
+			}
+			
+			organFrame = 0;
+		}
 	}
 
 	organLastTime = currTime;
@@ -238,8 +336,11 @@ void drawVisuals()
 	//draw organ
 	if( organOnScreen == 1)
 	{
-		SDL_Rect organRect = {(Sint16)(organX - px + ((buffer->w)/2)), (Sint16)(organY - py + ((buffer->h)/2)), 16, 16};
-		SDL_FillRect(buffer, &organRect, SDL_MapRGB(buffer->format, 155,155,155));
+		//SDL_Rect organRect = {(Sint16)(organX - px + ((buffer->w)/2)), (Sint16)(organY - py + ((buffer->h)/2)), 16, 16};
+		//SDL_FillRect(buffer, &organRect, SDL_MapRGB(buffer->format, 155,155,155));
+		SDL_Rect organRectFrom = {(Sint16)(16*organFrame), 0, 16, 16};
+		SDL_Rect organRectTo = {(Sint16)(organX - px + ((buffer->w)/2)), (Sint16)(organY - py + ((buffer->h)/2)), 0, 0};
+		SDL_BlitSurface(organCurrentSheet, &organRectFrom, buffer, &organRectTo);
 	}
 
 	for (i = 0; i < blockCount; i++)
@@ -455,7 +556,7 @@ void locating_start_end( int grid[][75] )
 		x_start = rand()%100;
 		y_start = rand()%75;
 	}
-	
+
 	px = (x_start)*16;
 	py = (y_start)*16;
 	
@@ -572,6 +673,13 @@ int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight)
 	walkLeftSheet = IMG_Load("gfx/cucumberWalkLeft.png");
 	idleRightSheet = IMG_Load("gfx/cucumberidleRight.png");
 	walkRightSheet = IMG_Load("gfx/cucumberWalkRight.png");
+	
+	organAnimation1 = IMG_Load("gfx/cucumberGib1.png");
+	organAnimation2 = IMG_Load("gfx/cucumberGib2.png");
+	organAnimation3 = IMG_Load("gfx/cucumberGib3.png");
+	organDeathAnimation1 = IMG_Load("gfx/cucumberGib1Die.png");
+	organDeathAnimation2 = IMG_Load("gfx/cucumberGib2Die.png");
+	organDeathAnimation3 = IMG_Load("gfx/cucumberGib3Die.png");
 
 	organOnScreen = 0;
 	organX = 0;
@@ -579,6 +687,9 @@ int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight)
 	organXSpeed = 0.0f;
 	organYSpeed = 0.0f;
 	organLastTime = 0;;
+	organFrame = 0;
+	organLastUpdate = SDL_GetTicks();
+	organCurrentSheet = organAnimation1;
 
 	runSpeed = 100.0f;
 	pFrame = 0;

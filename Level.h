@@ -39,6 +39,7 @@ int organY;
 float organXSpeed;
 float organYSpeed;
 int organOnScreen; //flag: 0 -> false, 1 -> true
+int organBlowingUp; //flag: 0 -> false, 1 -> true
 Uint32 organLastTime; //last time organ was updated (logic)
 Uint32 organBirthTime; //time when organ was initalized
 SDL_Surface* organCurrentSheet;
