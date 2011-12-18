@@ -22,9 +22,19 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
+#include <time.h>
 
 #include "Level.h"
 #include "SDL/SDL.h"
+
+#define x_length 100
+#define y_length 75
+
+struct Point{
+	int x;
+	int y;
+};
 
 int hitTest(aX, aY, aW, aH, bX, bY, bW, bH)
 {
@@ -144,6 +154,10 @@ void generateMap(int grid[][75])
 {
 	int i,j;
 	
+	time_t seconds;
+	time(&seconds);
+	srand((unsigned int) seconds);
+	
 	for (i = 0; i < 100; i++)
 	{
 		for (j = 0; j < 75; j++)
@@ -154,7 +168,7 @@ void generateMap(int grid[][75])
 			}
 			else
 			{
-				grid[i][j] = rand() % 2;
+				grid[i][j] = rand()  % 2;
 			}
 		}
 	}
@@ -257,18 +271,174 @@ void generateMap(int grid[][75])
 	}
 }
 
+void print_dijkstra( int d_grid[][75] )
+{
+	int i;
+	int j;
+	
+	for( i = 0; i < x_length; i++ )
+	{
+		for( j = 0; j < y_length; j++ )
+		{
+			if( d_grid[j][i] < 100 )
+			{
+				printf(" ");
+			}
+			if( d_grid[j][i] < 10 )
+			{
+				printf(" ");
+			}
+			
+			printf(" %d", d_grid[j][i]);
+		}
+		printf("\n");
+	}
+}
+
+void locating_start_end( int grid[][75] )
+{
+	int dijkstra_grid[100][75];
+	int visited[100][75];
+	int i = 0;
+	int j = 0;
+	
+	struct Point queue[100*75];
+	int totalNodes = x_length*y_length;
+	int queue_position = 0;
+	int queue_end = 0;
+	
+	
+	time_t seconds;
+	time(&seconds);
+	srand((unsigned int) seconds);
+	
+	int num_point = 0;
+	
+	for( i = 0; i< x_length; i++ )
+	{
+		for( j = 0; j < y_length; j++ )
+		{
+			dijkstra_grid[i][j] = 999;
+			visited[i][j] = 0;
+		}
+	}
+	
+	int x_start = rand()%100;
+	int y_start = rand()%75;
+	
+	while( grid[x_start][y_start] == 1 )
+	{
+		x_start = rand()%100;
+		y_start = rand()%75;
+	}
+	
+	px = (x_start)*16;
+	py = (y_start)*16;
+	
+	queue[queue_end].x = x_start;
+	queue[queue_end].y = y_start;
+	
+	grid[x_start][y_start] = 2; //sets the start position
+	dijkstra_grid[x_start][y_start] = 0; //set start as 0
+	
+//	printf("point.x = %d\n", point[num_point].x);
+//	printf("point.y = %d\n", point[num_point].y);
+	
+	//	printf("point.x = %d\n", queue[queue_position].x);
+//	printf("point.y = %d\n", queue[queue_position].y);
+	
+	queue_end++;
+	
+	int x_final= rand()%100;
+	int y_final = rand()%75;
+	
+	while( grid[x_final][y_final] == 1 )
+	{
+		x_final = rand()%100;
+		y_final = rand()%75;
+	}
+	
+	grid[x_final][y_final] = 3;
+	
+	int current_x;
+	int current_y;
+	
+//	printf("queue_position: %d\n", queue_position);
+	while( queue_end - queue_position > 0 )
+	{
+	//	printf("qEnd:%d qPos:%d\n", queue_end, queue_position);
+		int i;
+		int j;
+		//int current_source = queue_position;
+		current_x = queue[queue_position].x;
+		current_y = queue[queue_position].y;
+		queue_position++;
+
+		if (visited[current_x][current_y] == 1)
+		{
+			continue;
+		}
+		
+		visited[current_x][current_y] = 1;
+		//printf("current.x = %d\n", current_x);
+		//printf("current.y = %d\n", current_y);
+		
+		for( i = -1; i < 2; i++ )
+		{
+			for( j = -1; j < 2; j++ )
+			{
+				if ( i == -1 && j != 0 )
+				{
+					continue;
+				}
+				
+				else if( i == 1 && j != 0 )
+				{
+					continue;
+				}
+				
+				//if( grid[current_x+i][current_y+j] == 0 && dijkstra_grid[current_x+i][current_y+j] == 999 )
+				if( grid[current_x+i][current_y+j] == 0 && visited[current_x+i][current_y+j] == 0 )
+				{
+					queue[queue_end].x = current_x+i;
+					queue[queue_end].y = current_y+j;
+				/*	printf("current.x = %d\n", current_x);
+					printf("current.y = %d\n", current_y);
+					printf("current.x+i = %d\n", current_x+i);
+					printf("current.y+j = %d\n", current_y+j);
+					
+					printf("dijkstra_grid[current_x][current_y] %d\n", dijkstra_grid[current_x][current_y]);
+					printf("dijkstra_grid[current_x+i][current_y+j] %d\n", dijkstra_grid[current_x+i][current_y+j]);*/
+					
+					queue_end++;
+					
+					//printf("queue_position in forloop: %d\n", queue_position);
+					if (dijkstra_grid[current_x+i][current_y+j] > dijkstra_grid[current_x][current_y] + 1)
+					{
+						dijkstra_grid[current_x+i][current_y+j] = dijkstra_grid[current_x][current_y] + 1;
+//printf("new current.x+i = %d\n", current_x+i);
+	//					printf("new current.y+j = %d\n", current_y+j);
+					}
+				}
+			}
+		}
+	//	printf("\n");
+	}
+	print_dijkstra( dijkstra_grid );
+}
+
+
 int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight)
 {
 	int quit = 1;
 
-	int i,j;
-
-	px = 48;
-	py = 48;
+	//px = 58;
+	//py = 48;
 
 	int grid[100][75];
 
 	generateMap(grid);
+	locating_start_end(grid);
 	interpretLevel(grid);
 
 	/*blockCount = 5;
@@ -283,7 +453,7 @@ int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight)
 
 	runSpeed = 100.0f;
 
-	buffer = SDL_CreateRGBSurface(SDL_SWSURFACE, 320, 240, 32, 0, 0, 0, 0);
+	buffer = SDL_CreateRGBSurface(SDL_SWSURFACE, 1024, 768, 32, 0, 0, 0, 0);
 
 	while(quit == 1)
 	{
@@ -321,4 +491,3 @@ int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight)
 
 	return 0;
 }
-
