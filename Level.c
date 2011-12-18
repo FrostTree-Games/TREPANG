@@ -323,6 +323,8 @@ void updateOrgan(Uint32 currTime)
 
 void updateEnemy(struct enemy* en, Uint32 currTime)
 {
+	int i;
+	
 	if (en->dead == 1)
 	{
 		return;
@@ -347,15 +349,72 @@ void updateEnemy(struct enemy* en, Uint32 currTime)
 		}
 		break;
 		case WIGGLE:
+		if (currTime - en->eLastUpdate > 83)
+		{
+			en->eLastUpdate = currTime;
+			en->eFrame++;
+			if (en->dying == 1)
+			{
+				if (en->eFrame >= ((jellyFishDeathSheet->w)/16))
+				{
+					en->dead = 1;
+					return;
+				}
+			}
+			else
+			{
+				en->eFrame = en->eFrame % ((jellyFishSheet->w)/16);
+			}
+		}
+		
+		if (currTime - en->eLastSwitch > 400)
+		{
+			
+			en->flip *= -1;
+			
+			en->eXSpeed = ((rand() % 3) - 1)*50.0f;
+			en->eYSpeed = (en->flip)*50.0f;
+			
+			en->eLastSwitch = currTime;
+		}
+		
+		if (en->dying == 1)
+		{
+			en->eXSpeed = 0.0f;
+			en->eYSpeed = 0.0f;
+		}
+		
+		en->ex += (int)((en->eXSpeed/1000.0)*(currTime - en->eLastTime));
+		en->ey += (int)((en->eYSpeed/1000.0)*(currTime - en->eLastTime));
+		
+		en->eLastTime = currTime;
 		break;
 		case CHASE:
 		break;
+	}
+	
+	for (i = 0; i < blockCount; i++)
+	{
+		if (hitTest(en->ex, en->ey, 16, 16, blockList[i].x, blockList[i].y, 16, 16))
+		{
+			en->ex -= (int)(1.5*(en->eXSpeed/1000.0)*(currTime - en->eLastTime));
+			en->ey -= (int)(1.5*(en->eYSpeed/1000.0)*(currTime - en->eLastTime));
+			en->eXSpeed = 0.0f;
+			en->eYSpeed = 0.0f;
+			en->flip *= -1;
+		}
 	}
 
 	if (hitTest(en->ex, en->ey, 16, 16, organX, organY, 16, 16) && en->dying == 0)
 	{
 		switch (en->ai)
 		{
+			case WIGGLE:
+			en->dying = 1;
+			en->eFrame = 0;
+			en->eXSpeed = 0.0f;
+			en->eYSpeed = 0.0f;
+			break;
 			case CHILL:
 			en->dying = 1;
 			en->eFrame = 0;
@@ -430,6 +489,15 @@ void drawVisuals()
 						SDL_BlitSurface(starFishSheet , &rFrom, buffer, &rTo);
 					}
 					break;
+					case WIGGLE:
+					if (enemyList[i].dying == 1)
+					{
+						SDL_BlitSurface(jellyFishDeathSheet, &rFrom, buffer, &rTo);
+					}
+					else
+					{
+						SDL_BlitSurface(jellyFishSheet , &rFrom, buffer, &rTo);
+					}
 					default:
 					break;
 				}
@@ -743,10 +811,23 @@ void locating_start_end( int grid[][75] )
 		}
 		enemyList[l].ex = potX*16;
 		enemyList[l].ey = potY*16;
-		enemyList[l].ai = CHILL;
+		enemyList[l].eXSpeed = 0.0f;
+		enemyList[l].eYSpeed = 0.0f;
+		switch (rand() % 2)
+		{
+			case 0:
+				enemyList[l].ai = CHILL;
+			break;
+			case 1:
+				enemyList[l].ai = WIGGLE;
+			break;
+		}
 		enemyList[l].eLastUpdate = SDL_GetTicks();
+		enemyList[l].eLastTime = SDL_GetTicks();
+		enemyList[l].eLastSwitch = SDL_GetTicks();
 		enemyList[l].eFrame = 0;
-                enemyList[l].dead = 0;
+        enemyList[l].dead = 0;
+        enemyList[l].flip = 1;
 		
 		l++;
 	}
@@ -790,6 +871,10 @@ int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight)
 	
 	starFishSheet = IMG_Load("gfx/starfishIdle.png");
 	starFishDeathSheet = IMG_Load("gfx/starfishDie.png");
+	
+	jellyFishSheet = IMG_Load("gfx/jellyfishIdle.png");
+	jellyFishDeathSheet = IMG_Load("gfx/jellyfishDie.png");
+	
 
 	organOnScreen = 0;
 	organX = 0;

@@ -60,8 +60,10 @@ struct enemy
 	int eFrame;
 	Uint32 eLastTime;
 	Uint32 eLastUpdate;
+	Uint32 eLastSwitch;
 	int dying; //flag: 0 -> false, 1 -> true
 	int dead; //flag: 0 -> false, 1 -> true
+	int flip; //flag: -1 -> false, 1 -> true
 };
 
 struct enemy enemyList[50];
