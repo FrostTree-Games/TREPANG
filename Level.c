@@ -75,6 +75,7 @@ void updatePlayerLogic(Uint32 currTime)
 			pCurrentSheet = walkRightSheet;
 			pFrame = 0;
 			rDown = 1;
+			pDirection = 1;
 		}
 		pXSpeed = runSpeed;
 	}
@@ -85,6 +86,7 @@ void updatePlayerLogic(Uint32 currTime)
 			pCurrentSheet = walkLeftSheet;
 			pFrame = 0;
 			lDown = 1;
+			pDirection = 0;
 		}
 		pXSpeed = -runSpeed;
 	}
@@ -108,14 +110,103 @@ void updatePlayerLogic(Uint32 currTime)
 	if (keystates[SDLK_DOWN])
 	{
 		pYSpeed = runSpeed;
+		if (dDown == 0)
+		{
+			if (pDirection == 0)
+			{
+				pCurrentSheet = walkLeftSheet;
+				dDown = 1;
+			}
+			else
+			{
+				pCurrentSheet = walkRightSheet;
+				dDown = 1;
+			}
+		}
 	}
 	else if (keystates[SDLK_UP])
 	{
 		pYSpeed = -runSpeed;
+		if (uDown == 0)
+		{
+			if (pDirection == 0)
+			{
+				pCurrentSheet = walkLeftSheet;
+				uDown = 1;
+			}
+			else
+			{
+				pCurrentSheet = walkRightSheet;
+				uDown = 1;
+			}
+		}
 	}
 	else
 	{
+		if (uDown == 1 || dDown == 1)
+		{
+			if (pDirection == 0)
+			{
+				pCurrentSheet = idleLeftSheet;
+				uDown = 0;
+				dDown = 0;
+			}
+			else
+			{
+				pCurrentSheet = idleRightSheet;
+				uDown = 0;
+				dDown = 0;
+			}
+			pFrame = 0;
+		}
 		pYSpeed = 0.0f;
+	}
+	
+	if (keystates[SDLK_z])
+	{
+		if (organOnScreen == 0)
+		{
+			time_t seconds;
+			time(&seconds);
+			srand((unsigned int) seconds);
+
+			switch(rand() % 3)
+			{
+				case 0:
+				organCurrentSheet = organAnimation1;
+				break;
+				case 1:
+				organCurrentSheet = organAnimation2;
+				break;
+				case 2:
+				organCurrentSheet = organAnimation3;
+				break;
+			}
+			organOnScreen = 1;
+			organBirthTime = currTime;
+			organLastTime = organBirthTime;
+			organFrame = 0;
+			organX = px;
+			organY = py;
+			if (pXSpeed != 0.0f)
+			{
+				organXSpeed = pXSpeed*1.5;
+				organYSpeed = pYSpeed*1.5;
+			}
+			else
+			{
+				if (pDirection == 0)
+				{
+					organXSpeed = -runSpeed*1.5;
+					organYSpeed = 0.0f;
+				}
+				else
+				{
+					organXSpeed = runSpeed*1.5;
+					organYSpeed = 0.0f;
+				}
+			}
+		}
 	}
 
 	px += (int)((pXSpeed/1000.0)*tDiff);
@@ -139,6 +230,97 @@ void updatePlayerLogic(Uint32 currTime)
 	pLastTime = currTime;
 }
 
+void updateOrgan(Uint32 currTime)
+{
+	int i;
+
+	// return if not updating
+	if (organOnScreen == 0)
+	{
+		return;
+	}
+
+	Uint32 tDiff = currTime - organLastTime;
+	
+	if (currTime - organLastUpdate > 83)
+	{
+		organLastUpdate = currTime;
+		organFrame++;
+		if (organBlowingUp == 1 && organFrame >= ((organCurrentSheet->w)/16))
+		{
+			organBlowingUp = 0;
+			organOnScreen = 0;
+			return;
+		}
+		else
+		{
+			organFrame = organFrame % ((organCurrentSheet->w)/16);
+		}
+	}
+
+	organX += (int)((organXSpeed/1000.0)*tDiff);
+	organY += (int)((organYSpeed/1000.0)*tDiff);
+	
+	for (i = 0; i < blockCount; i++)
+	{
+		if (hitTest(organX, organY, 16, 16, blockList[i].x, blockList[i].y, 16, 16))
+		{
+			//organOnScreen = 0;
+			if (organBlowingUp == 0)
+			{
+				organBlowingUp = 1;
+				organXSpeed = 0.0f;
+				organYSpeed = 0.0f;
+				
+				if (organCurrentSheet == organAnimation1)
+				{
+					organCurrentSheet = organDeathAnimation1;
+				}
+				else if (organCurrentSheet == organAnimation2)
+				{
+					organCurrentSheet = organDeathAnimation2;
+				}
+				else if(organCurrentSheet == organAnimation3)
+				{
+					organCurrentSheet = organDeathAnimation3;
+				}
+				
+				organFrame = 0;
+			}
+		}
+	}
+	
+	// if the elapsed time the organ has been alive is greater than some seconds,
+	// then set the organ to not exist
+	if (currTime - organBirthTime > 650 && organBlowingUp == 0)
+	{
+		//organOnScreen = 0;
+		if (organBlowingUp == 0)
+		{
+			organBlowingUp = 1;
+			organXSpeed = 0.0f;
+			organYSpeed = 0.0f;
+			
+			if (organCurrentSheet == organAnimation1)
+			{
+				organCurrentSheet = organDeathAnimation1;
+			}
+			else if (organCurrentSheet == organAnimation2)
+			{
+				organCurrentSheet = organDeathAnimation2;
+			}
+			else if(organCurrentSheet == organAnimation3)
+			{
+				organCurrentSheet = organDeathAnimation3;
+			}
+			
+			organFrame = 0;
+		}
+	}
+
+	organLastTime = currTime;
+}
+
 void drawVisuals()
 {
 	int i;
@@ -147,10 +329,19 @@ void drawVisuals()
 
 	//SDL_Rect r = {(Sint16)(buffer->w)/2, (Sint16)(buffer->h)/2, 16, 16};
 	//SDL_FillRect(buffer, &r, SDL_MapRGB(buffer->format, 0, 255, 255));
-	printf("%d\n", 16*pFrame);
 	SDL_Rect rFrom = {(Sint16)(16*pFrame), 0, 16, 16};
 	SDL_Rect rTo = {(Sint16)(buffer->w)/2, (Sint16)(buffer->h)/2, 0, 0};
 	SDL_BlitSurface(pCurrentSheet, &rFrom, buffer, &rTo);
+
+	//draw organ
+	if( organOnScreen == 1)
+	{
+		//SDL_Rect organRect = {(Sint16)(organX - px + ((buffer->w)/2)), (Sint16)(organY - py + ((buffer->h)/2)), 16, 16};
+		//SDL_FillRect(buffer, &organRect, SDL_MapRGB(buffer->format, 155,155,155));
+		SDL_Rect organRectFrom = {(Sint16)(16*organFrame), 0, 16, 16};
+		SDL_Rect organRectTo = {(Sint16)(organX - px + ((buffer->w)/2)), (Sint16)(organY - py + ((buffer->h)/2)), 0, 0};
+		SDL_BlitSurface(organCurrentSheet, &organRectFrom, buffer, &organRectTo);
+	}
 
 	for (i = 0; i < blockCount; i++)
 	{
@@ -340,7 +531,6 @@ void locating_start_end( int grid[][75] )
 	int j = 0;
 	
 	struct Point queue[100*75];
-	int totalNodes = x_length*y_length;
 	int queue_position = 0;
 	int queue_end = 0;
 	
@@ -348,9 +538,7 @@ void locating_start_end( int grid[][75] )
 	time_t seconds;
 	time(&seconds);
 	srand((unsigned int) seconds);
-	
-	int num_point = 0;
-	
+
 	for( i = 0; i< x_length; i++ )
 	{
 		for( j = 0; j < y_length; j++ )
@@ -368,7 +556,7 @@ void locating_start_end( int grid[][75] )
 		x_start = rand()%100;
 		y_start = rand()%75;
 	}
-	
+
 	px = (x_start)*16;
 	py = (y_start)*16;
 	
@@ -477,6 +665,32 @@ int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight)
 
 	pLastTime = SDL_GetTicks();
 
+	buffer = SDL_CreateRGBSurface(SDL_SWSURFACE, 320, 240, 32, 0, 0, 0, 0);
+
+	pBlockSurface = IMG_Load("gfx/beachtileLEGO.png");
+
+	idleLeftSheet = IMG_Load("gfx/cucumberidleLeft.png");
+	walkLeftSheet = IMG_Load("gfx/cucumberWalkLeft.png");
+	idleRightSheet = IMG_Load("gfx/cucumberidleRight.png");
+	walkRightSheet = IMG_Load("gfx/cucumberWalkRight.png");
+	
+	organAnimation1 = IMG_Load("gfx/cucumberGib1.png");
+	organAnimation2 = IMG_Load("gfx/cucumberGib2.png");
+	organAnimation3 = IMG_Load("gfx/cucumberGib3.png");
+	organDeathAnimation1 = IMG_Load("gfx/cucumberGib1Die.png");
+	organDeathAnimation2 = IMG_Load("gfx/cucumberGib2Die.png");
+	organDeathAnimation3 = IMG_Load("gfx/cucumberGib3Die.png");
+
+	organOnScreen = 0;
+	organX = 0;
+	organY = 0;
+	organXSpeed = 0.0f;
+	organYSpeed = 0.0f;
+	organLastTime = 0;;
+	organFrame = 0;
+	organLastUpdate = SDL_GetTicks();
+	organCurrentSheet = organAnimation1;
+
 	runSpeed = 100.0f;
 	pFrame = 0;
 	pLastUpdate = pLastTime;
@@ -484,17 +698,8 @@ int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight)
 	rDown = 0;
 	uDown = 0;
 	dDown = 0;
-
-	buffer = SDL_CreateRGBSurface(SDL_SWSURFACE, 320, 240, 32, 0, 0, 0, 0);
-
-	pBlockSurface = IMG_Load("gfx/beachtileLEGO.png");
-	
-	idleLeftSheet = IMG_Load("gfx/cucumberidleLeft.png");
-	walkLeftSheet = IMG_Load("gfx/cucumberWalkLeft.png");
-	idleRightSheet = IMG_Load("gfx/cucumberidleRight.png");
-	walkRightSheet = IMG_Load("gfx/cucumberWalkRight.png");
-
 	pCurrentSheet = idleLeftSheet;
+	pDirection = 0;
 
 	while(quit == 1)
 	{
@@ -518,6 +723,7 @@ int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight)
 		Uint32 currTicks = SDL_GetTicks();
 
 		updatePlayerLogic(currTicks);
+		updateOrgan(currTicks);
 
 		drawVisuals();
 

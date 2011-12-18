@@ -27,29 +27,48 @@ SDL_Event ev;
 
 Uint32 pLastTime;
 
+// player "physics" information
 int px;
 int py;
 float runSpeed;
+int pDirection; //flag: 0 -> left, 1 -> right
 
+//organ projectile "physics" information
+int organX;
+int organY;
+float organXSpeed;
+float organYSpeed;
+int organOnScreen; //flag: 0 -> false, 1 -> true
+int organBlowingUp; //flag: 0 -> false, 1 -> true
+Uint32 organLastTime; //last time organ was updated (logic)
+Uint32 organBirthTime; //time when organ was initalized
+SDL_Surface* organCurrentSheet;
+int organFrame;
+Uint32 organLastUpdate; // last frame jump
+
+// block structure magic
 struct block
 {
 	int x;
 	int y;
 };
-
 struct block* blockList;
 int blockCount;
 
+// frame animation data
 int pFrame;
-Uint32 pLastUpdate;
+Uint32 pLastUpdate; // last frame jump
 
+// key bools for proper animation
 int lDown;
 int rDown;
 int uDown;
 int dDown;
 
+//screen buffer
 SDL_Surface* buffer;
 
+//notable methods
 int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight);
 void locating_start_end( int grid[][75] );
 

@@ -20,6 +20,13 @@ SDL_Surface* walkLeftSheet;
 SDL_Surface* idleRightSheet;
 SDL_Surface* walkRightSheet;
 
+SDL_Surface* organAnimation1;
+SDL_Surface* organAnimation2;
+SDL_Surface* organAnimation3;
+SDL_Surface* organDeathAnimation1;
+SDL_Surface* organDeathAnimation2;
+SDL_Surface* organDeathAnimation3;
+
 int loadAnims();
 
 int freeAnims();

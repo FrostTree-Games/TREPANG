@@ -75,7 +75,7 @@ int gameBackendSetup()
 	}
 	
 	// initalizes the screen pointer to the screen
-	if ((screen = SDL_SetVideoMode( 320, 240, 32, SDL_SWSURFACE)) == NULL)
+	if ((screen = SDL_SetVideoMode( 320, 240, 32, SDL_SWSURFACE/* | SDL_FULLSCREEN*/)) == NULL)
 	{
 		perror("Error on intialzing video memory.");
 		return -1;
@@ -111,8 +111,12 @@ int main(int argc, char* argv[])
 	/*if (loadAnims() == -1)
 	{
 		return -1;
-	}*/ 
+	} */ 
 
+<<<<<<< HEAD
+=======
+	//playTestBGM();
+>>>>>>> dev-dan
 	
 	playBGM();
 
