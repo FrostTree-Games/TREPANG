@@ -25,9 +25,9 @@
 #include <math.h>
 #include <time.h>
 
-#include "Level.h"
 #include "SDL/SDL.h"
 #include "SDL/SDL_image.h"
+#include "Level.h"
 #include "Anim.h"
 
 #define x_length 100
@@ -321,6 +321,36 @@ void updateOrgan(Uint32 currTime)
 	organLastTime = currTime;
 }
 
+void updateEnemy(struct enemy* en, Uint32 currTime)
+{
+	switch (en->ai)
+	{
+		case CHILL:
+		if (currTime - en->eLastUpdate > 83)
+		{
+			en->eLastUpdate = currTime;
+			en->eFrame++;
+			en->eFrame = en->eFrame % ((starFishSheet->w)/16);
+		}
+		break;
+		case WIGGLE:
+		break;
+		case CHASE:
+		break;
+	}
+}
+
+void updateEnemyList(Uint32 currTime)
+{
+	int i = 0;
+
+	while (i < enemyCount)
+	{
+		updateEnemy(&enemyList[i], currTime);
+		i++;
+	}
+}
+
 void drawVisuals()
 {
 	int i;
@@ -352,6 +382,26 @@ void drawVisuals()
 				SDL_Rect r = {(Sint16)(blockList[i].x - px + ((buffer->w)/2)), (Sint16)(blockList[i].y - py + ((buffer->h)/2)), 16, 16};
 				SDL_BlitSurface( pBlockSurface, NULL, buffer, &r);
 				//SDL_FillRect(buffer, &r, SDL_MapRGB(buffer->format, 0, 0, 0));
+			}
+		}
+	}
+	
+	for (i = 0; i < enemyCount; i++)
+	{
+		if (enemyList[i].ex > px - (buffer->w)/2 - 16 && enemyList[i].ex < px + (buffer->w)/2)
+		{
+			if (enemyList[i].ey > py - (buffer->h)/2 - 16 && enemyList[i].ey < py + (buffer->h)/2)
+			{
+				SDL_Rect rFrom = {(Sint16)(16*enemyList[i].eFrame), 0, 16, 16};
+				SDL_Rect rTo = {(Sint16)(enemyList[i].ex - px + ((buffer->w)/2)), (Sint16)(enemyList[i].ey - py + ((buffer->h)/2)), 0, 0};
+				switch (enemyList[i].ai)
+				{
+					case CHILL:
+					SDL_BlitSurface(starFishSheet , &rFrom, buffer, &rTo);
+					break;
+					default:
+					break;
+				}
 			}
 		}
 	}
@@ -649,6 +699,25 @@ void locating_start_end( int grid[][75] )
 		}
 	//	printf("\n");
 	}
+	int l = 0;
+
+	while (l < enemyCount)
+	{
+		int potX = (rand() % 98) + 1;
+		int potY = (rand() % 73) + 1;
+		if (grid[potX][potY] == 1)
+		{
+			l--;
+			continue;
+		}
+		enemyList[l].ex = potX*16;
+		enemyList[l].ey = potY*16;
+		enemyList[l].ai = CHILL;
+		enemyList[l].eLastUpdate = SDL_GetTicks();
+		enemyList[l].eFrame = 0;
+		
+		l++;
+	}
 	//print_dijkstra( dijkstra_grid );
 }
 
@@ -657,11 +726,17 @@ int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight)
 {
 	int quit = 1;
 
+	//printf("one\n");
+
 	int grid[100][75];
+	
+	enemyCount = 50;
 
 	generateMap(grid);
 	locating_start_end(grid);
 	interpretLevel(grid);
+	
+	//printf("two\n");
 
 	pLastTime = SDL_GetTicks();
 
@@ -680,6 +755,8 @@ int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight)
 	organDeathAnimation1 = IMG_Load("gfx/cucumberGib1Die.png");
 	organDeathAnimation2 = IMG_Load("gfx/cucumberGib2Die.png");
 	organDeathAnimation3 = IMG_Load("gfx/cucumberGib3Die.png");
+	
+	starFishSheet = IMG_Load("gfx/starfishIdle.png");
 
 	organOnScreen = 0;
 	organX = 0;
@@ -724,6 +801,7 @@ int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight)
 
 		updatePlayerLogic(currTicks);
 		updateOrgan(currTicks);
+		updateEnemyList(currTicks);
 
 		drawVisuals();
 
@@ -731,7 +809,7 @@ int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight)
 		SDL_Flip(screen);
 		SDL_Delay(20);
 	}
-	
+
 	free(blockList);
 
 	SDL_FreeSurface(buffer);

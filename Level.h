@@ -46,6 +46,29 @@ SDL_Surface* organCurrentSheet;
 int organFrame;
 Uint32 organLastUpdate; // last frame jump
 
+enum AItype
+{
+	CHILL, WIGGLE, CHASE
+};
+struct enemy
+{
+	enum AItype ai;
+	int ex;
+	int ey;
+	float eXSpeed;
+	float eYSpeed;
+	int eFrame;
+	Uint32 eLastTime;
+	Uint32 eLastUpdate;
+	int dying; //flag: 0 -> false, 1 -> true
+	int dead; //flag: 0 -> false, 1 -> true
+};
+
+struct enemy enemyList[50];
+int enemyCount;
+
+struct enemy testFish;
+
 // block structure magic
 struct block
 {
