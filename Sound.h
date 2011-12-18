@@ -20,77 +20,12 @@
  *
  */
 
-#include <stdio.h>
-
 #include "SDL/SDL.h"
+#include "SDL/SDL_mixer.h"
 
-#include "Level.h"
-#include "Anim.h"
-#include "Sound.h"
+Mix_Music* testBGM;
 
-// this data type will be used for the game's screen
-SDL_Surface* screen;
+int init_sound();
+void deinit_sound();
 
-int gameBackendSetup()
-{
-	// initalizes the SDL library
-	if (SDL_Init (SDL_INIT_EVERYTHING) == -1)
-	{
-		perror("Error on SDL_Init. Check your something");
-		return -1;
-	}
-	
-	// initalizes the screen pointer to the screen
-	if ((screen = SDL_SetVideoMode( 320, 240, 32, SDL_SWSURFACE)) == NULL)
-	{
-		perror("Error on intialzing video memory.");
-		return -1;
-	}
-	
-	SDL_WM_SetCaption( "ChordWing", NULL );
-
-	return 0;
-}
-
-int gameBackendClose()
-{
-	// frees the screen pointer and closes SDL
-	SDL_Quit();
-
-	return 0;
-}
-
-int main(int argc, char* argv[])
-{
-	//setup, exit if fail
-	if (gameBackendSetup() == -1)
-	{
-		return -1;
-	}
-	
-	if (init_sound() == -1)
-	{
-		perror("error on sound initalization");
-		return -1;
-	}
-	
-	/*if (loadAnims() == -1)
-	{
-		return -1;
-	} */
-
-	playTestBGM();
-	
-
-	doLevel(screen, 320, 240);
-
-	//freeAnims();
-
-	deinit_sound();
-
-	// cleanup
-	gameBackendClose();
-
-	return 0;
-}
-
+void playTestBGM();
