@@ -43,5 +43,6 @@ int blockCount;
 SDL_Surface* buffer;
 
 int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight);
+void locating_start_end( int grid[][75] );
 
 
