@@ -41,7 +41,7 @@ int init_sound()
 	music = Mix_LoadMUS("bgm/taylorswift.ogg");
 	if (music == NULL)
 	{
-		perror("error loading plantation.ogg");
+		perror("error loading taylorswift.ogg");
 		return -1;
 	}
 	
@@ -72,4 +72,45 @@ void deinit_sound()
 
 	// close SDL_mixer
 	Mix_CloseAudio();
+}
+
+
+int move_sound()
+{
+	if( Mix_PlayChannel(-1, move, 0) == -1)
+	{
+		return -1;
+	}
+	
+	return 0;
+}
+
+int explode_sound()
+{
+	if( Mix_PlayChannel(-1, explode, 0) == -1)
+	{
+		return -1;
+	}
+	
+	return 0;
+}
+
+int spit_sound()
+{
+	if( Mix_PlayChannel(-1, spit, 0) == -1)
+	{
+		return -1;
+	}
+	
+	return 0;
+}
+
+int heart_sound()
+{
+	if( Mix_PlayChannel(-1, heart, 0) == -1)
+	{
+		return -1;
+	}
+	
+	return 0;
 }

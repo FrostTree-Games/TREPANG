@@ -31,40 +31,6 @@
 // this data type will be used for the game's screen
 SDL_Surface* screen;
 
-
-
-int move_sound()
-{
-	if( Mix_PlayChannel(-1, move, 0) == -1)
-	{
-		return 1;
-	}
-}
-
-int explode_sound()
-{
-	if( Mix_PlayChannel(-1, explode, 0) == -1)
-	{
-		return 1;
-	}
-}
-
-int spit_sound()
-{
-	if( Mix_PlayChannel(-1, spit, 0) == -1)
-	{
-		return 1;
-	}
-}
-
-int heart_sound()
-{
-	if( Mix_PlayChannel(-1, heart, 0) == -1)
-	{
-		return 1;
-	}
-}
-
 int gameBackendSetup()
 {
 	// initalizes the SDL library
@@ -111,13 +77,10 @@ int main(int argc, char* argv[])
 	/*if (loadAnims() == -1)
 	{
 		return -1;
-	} */ 
+	} */
 
-<<<<<<< HEAD
-=======
 	//playTestBGM();
->>>>>>> dev-dan
-	
+
 	playBGM();
 
 	doLevel(screen, 320, 240);

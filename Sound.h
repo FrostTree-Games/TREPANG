@@ -34,4 +34,9 @@ Mix_Chunk* move;
 int init_sound();
 void deinit_sound();
 
+int move_sound();
+int explode_sound();
+int spit_sound();
+int heart_sound();
+
 void playBGM();
