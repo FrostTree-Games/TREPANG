@@ -70,6 +70,12 @@ void updatePlayerLogic(Uint32 currTime)
 	float pYSpeed = 0.0f;
 	if (keystates[SDLK_RIGHT])
 	{
+		if(rDown == 0)
+		{
+			pCurrentSheet = walkRightSheet;
+			pFrame = 0;
+			rDown = 1;
+		}
 		pXSpeed = runSpeed;
 	}
 	else if (keystates[SDLK_LEFT])
@@ -89,6 +95,12 @@ void updatePlayerLogic(Uint32 currTime)
 			pCurrentSheet = idleLeftSheet;
 			pFrame = 0;
 			lDown = 0;
+		}
+		if( rDown == 1 )
+		{
+			pCurrentSheet = idleRightSheet;
+			pFrame = 0;
+			rDown = 0;
 		}
 		pXSpeed = 0.0f;
 	}
@@ -131,7 +143,7 @@ void drawVisuals()
 {
 	int i;
 
-	SDL_FillRect(buffer, NULL, SDL_MapRGB(buffer->format, 255,255,255));
+	SDL_FillRect(buffer, NULL, SDL_MapRGB(buffer->format,50,50,235));
 
 	//SDL_Rect r = {(Sint16)(buffer->w)/2, (Sint16)(buffer->h)/2, 16, 16};
 	//SDL_FillRect(buffer, &r, SDL_MapRGB(buffer->format, 0, 255, 255));
@@ -147,7 +159,8 @@ void drawVisuals()
 			if (blockList[i].y > py - (buffer->h)/2 - 16 && blockList[i].y < py + (buffer->h)/2)
 			{
 				SDL_Rect r = {(Sint16)(blockList[i].x - px + ((buffer->w)/2)), (Sint16)(blockList[i].y - py + ((buffer->h)/2)), 16, 16};
-				SDL_FillRect(buffer, &r, SDL_MapRGB(buffer->format, 0, 0, 0));
+				SDL_BlitSurface( pBlockSurface, NULL, buffer, &r);
+				//SDL_FillRect(buffer, &r, SDL_MapRGB(buffer->format, 0, 0, 0));
 			}
 		}
 	}
@@ -474,8 +487,12 @@ int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight)
 
 	buffer = SDL_CreateRGBSurface(SDL_SWSURFACE, 320, 240, 32, 0, 0, 0, 0);
 
+	pBlockSurface = IMG_Load("gfx/beachtileLEGO.png");
+	
 	idleLeftSheet = IMG_Load("gfx/cucumberidleLeft.png");
 	walkLeftSheet = IMG_Load("gfx/cucumberWalkLeft.png");
+	idleRightSheet = IMG_Load("gfx/cucumberidleRight.png");
+	walkRightSheet = IMG_Load("gfx/cucumberWalkRight.png");
 
 	pCurrentSheet = idleLeftSheet;
 
