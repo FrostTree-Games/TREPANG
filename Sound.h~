@@ -20,56 +20,12 @@
  *
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-
 #include "SDL/SDL.h"
 #include "SDL/SDL_mixer.h"
 
-#include "Sound.h"
+Mix_Music* testBGM;
 
+int init_sound();
+void deinit_sound();
 
-
-int init_sound()
-{
-	//Initialize SDL_mixer
-	if( Mix_OpenAudio( 22050, MIX_DEFAULT_FORMAT, 2, 4096 ) == -1 )
-	{
-		return -1;
-	}
-	
-	music = Mix_LoadMUS("bgm/taylorswift.ogg");
-	if (music == NULL)
-	{
-		perror("error loading plantation.ogg");
-		return -1;
-	}
-	
-	heart = Mix_LoadWAV("bgm/heart.WAV");
-	explode = Mix_LoadWAV("bgm/explode.WAV");
-	spit = Mix_LoadWAV("bgm/spitShort.WAV");
-	move = Mix_LoadWAV("bgm/moveSound.WAV");
-	
-	if((heart == NULL) || (explode==NULL) || (spit == NULL) || (move == NULL))
-	{
-		return -1;
-	}
-
-	return 0;
-}
-
-void playBGM()
-{
-	if (music != NULL)
-	{
-		Mix_PlayMusic(music, -1);
-	}
-}
-
-void deinit_sound()
-{
-	Mix_FreeMusic(music);
-
-	// close SDL_mixer
-	Mix_CloseAudio();
-}
+void playTestBGM();

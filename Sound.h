@@ -23,9 +23,15 @@
 #include "SDL/SDL.h"
 #include "SDL/SDL_mixer.h"
 
-Mix_Music* testBGM;
+//Mix_Music* testBGM;
+Mix_Music* music;
+
+Mix_Chunk* heart;
+Mix_Chunk* explode;
+Mix_Chunk* spit;
+Mix_Chunk* move;
 
 int init_sound();
 void deinit_sound();
 
-void playTestBGM();
+void playBGM();

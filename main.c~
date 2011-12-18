@@ -21,55 +21,76 @@
  */
 
 #include <stdio.h>
-#include <stdlib.h>
 
 #include "SDL/SDL.h"
-#include "SDL/SDL_mixer.h"
 
+#include "Level.h"
+#include "Anim.h"
 #include "Sound.h"
 
+// this data type will be used for the game's screen
+SDL_Surface* screen;
 
-
-int init_sound()
+int gameBackendSetup()
 {
-	//Initialize SDL_mixer
-	if( Mix_OpenAudio( 22050, MIX_DEFAULT_FORMAT, 2, 4096 ) == -1 )
+	// initalizes the SDL library
+	if (SDL_Init (SDL_INIT_EVERYTHING) == -1)
 	{
+		perror("Error on SDL_Init. Check your something");
 		return -1;
 	}
 	
-	music = Mix_LoadMUS("bgm/taylorswift.ogg");
-	if (music == NULL)
+	// initalizes the screen pointer to the screen
+	if ((screen = SDL_SetVideoMode( 320, 240, 32, SDL_SWSURFACE)) == NULL)
 	{
-		perror("error loading plantation.ogg");
+		perror("Error on intialzing video memory.");
 		return -1;
 	}
 	
-	heart = Mix_LoadWAV("bgm/heart.WAV");
-	explode = Mix_LoadWAV("bgm/explode.WAV");
-	spit = Mix_LoadWAV("bgm/spitShort.WAV");
-	move = Mix_LoadWAV("bgm/moveSound.WAV");
-	
-	if((heart == NULL) || (explode==NULL) || (spit == NULL) || (move == NULL))
-	{
-		return -1;
-	}
+	SDL_WM_SetCaption( "ChordWing", NULL );
 
 	return 0;
 }
 
-void playBGM()
+int gameBackendClose()
 {
-	if (music != NULL)
+	// frees the screen pointer and closes SDL
+	SDL_Quit();
+
+	return 0;
+}
+
+int main(int argc, char* argv[])
+{
+	//setup, exit if fail
+	if (gameBackendSetup() == -1)
 	{
-		Mix_PlayMusic(music, -1);
+		return -1;
 	}
+	
+	if (init_sound() == -1)
+	{
+		perror("error on sound initalization");
+		return -1;
+	}
+	
+	if (loadAnims() == -1)
+	{
+		return -1;
+	} 
+
+	playTestBGM();
+	
+
+	doLevel(screen, 320, 240);
+
+	freeAnims();
+
+	deinit_sound();
+
+	// cleanup
+	gameBackendClose();
+
+	return 0;
 }
 
-void deinit_sound()
-{
-	Mix_FreeMusic(music);
-
-	// close SDL_mixer
-	Mix_CloseAudio();
-}
