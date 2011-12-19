@@ -38,10 +38,10 @@ int init_sound()
 		return -1;
 	}
 	
-	music = Mix_LoadMUS("bgm/taylorswift.ogg");
+	music = Mix_LoadMUS("bgm/danube.ogg");
 	if (music == NULL)
 	{
-		perror("error loading taylorswift.ogg");
+		perror("error loading danube.ogg");
 		return -1;
 	}
 	
@@ -49,7 +49,7 @@ int init_sound()
 	explode = Mix_LoadWAV("bgm/explode.WAV");
 	spit = Mix_LoadWAV("bgm/spitShort.WAV");
 	move = Mix_LoadWAV("bgm/moveSound.WAV");
-	
+
 	if((heart == NULL) || (explode==NULL) || (spit == NULL) || (move == NULL))
 	{
 		return -1;
