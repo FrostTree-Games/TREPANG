@@ -104,6 +104,9 @@ int lDown;
 int rDown;
 int uDown;
 int dDown;
+int zDown;
+
+int gameWon; //flag: 0 -> false, 1 -> true
 
 //screen buffer
 SDL_Surface* buffer;

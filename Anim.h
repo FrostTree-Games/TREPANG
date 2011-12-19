@@ -1,4 +1,5 @@
 #include "SDL/SDL.h"
+#include "SDL/SDL_ttf.h"
 
 struct animation
 {
@@ -30,6 +31,8 @@ SDL_Surface* idleRightSheet;
 SDL_Surface* walkRightSheet;
 SDL_Surface* deathLeftSheet;
 SDL_Surface* deathRightSheet;
+SDL_Surface* shootSheetLeft;
+SDL_Surface* shootSheetRight;
 
 SDL_Surface* organAnimation1;
 SDL_Surface* organAnimation2;
@@ -46,6 +49,8 @@ SDL_Surface* jellyFishDeathSheet;
 
 SDL_Surface* squidSheetUp;
 SDL_Surface* squidSheetUpDie;
+
+TTF_Font* font;
 
 int loadAnims();
 

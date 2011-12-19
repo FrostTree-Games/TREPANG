@@ -23,7 +23,9 @@
 #include <stdio.h>
 
 #include "SDL/SDL.h"
+#include "SDL/SDL_ttf.h"
 
+#include "Title.h"
 #include "Level.h"
 #include "Anim.h"
 #include "Sound.h"
@@ -74,14 +76,29 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 	
+	if (TTF_Init() == -1)
+	{
+		perror("error on SDL_ttf initalization");
+		return -1;
+	}
+	
+	font = TTF_OpenFont( "font/classic.ttf", 12 );	
+	if (font == NULL)
+	{
+		perror("error on font loading");
+		return -1;
+	}
+	
 	/*if (loadAnims() == -1)
 	{
 		return -1;
 	} */
 
 	//playBGM();
+	
+	//titleScreen(screen);
 
-	doLevel(screen, 320, 240);
+	while (doLevel(screen, 320, 240) == 1);
 
 	//freeAnims();
 

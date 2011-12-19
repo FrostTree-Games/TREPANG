@@ -69,6 +69,21 @@ void updatePlayerLogic(Uint32 currTime)
 	{
 		pLastUpdate = currTime;
 		pFrame++;
+		if (pCurrentSheet == shootSheetLeft || pCurrentSheet == shootSheetRight)
+		{
+			if (pFrame >= ((pCurrentSheet->w)/16))
+			{
+				pFrame = 0;
+				if (pDirection == 0)
+				{
+					pCurrentSheet = idleLeftSheet;
+				}
+				else
+				{
+					pCurrentSheet = idleRightSheet;
+				}
+			}	
+		}
 		if (pDying == 1)
 		{
 			if (pFrame >= ((pCurrentSheet->w)/16))
@@ -188,6 +203,16 @@ void updatePlayerLogic(Uint32 currTime)
 			time_t seconds;
 			time(&seconds);
 			srand((unsigned int) seconds);
+			
+			pFrame = 0;
+			if (pDirection == 0)
+			{
+				pCurrentSheet = shootSheetLeft;
+			}
+			else
+			{
+				pCurrentSheet = shootSheetRight;
+			}
 
 			switch(rand() % 3)
 			{
@@ -254,9 +279,6 @@ void updatePlayerLogic(Uint32 currTime)
 			SW = 1;
 		}
 	}
-	
-	int pBackX = 0;
-	int pBackY = 0;
 
 	if (xor(xor(NE, NW), xor(SE, SW)))
 	{
@@ -286,23 +308,6 @@ void updatePlayerLogic(Uint32 currTime)
 	{
 		px -= (int)((pXSpeed/1000.0)*tDiff);
 	}
-
-
-	/*
-	if (pXSpeed != 0.0f)
-	{
-		if ((NE || SE) || (NW || SW))
-		{
-			px -= (int)((pXSpeed/1000.0)*tDiff);
-		}
-	}
-	if (pYSpeed != 0.0f)
-	{
-		if ((NE || NW) || (SE || SW))
-		{
-			py -= (int)((pYSpeed/1000.0)*tDiff);
-		}
-	}     */
 
 	for (i = 0; i < enemyCount; i++)
 	{
@@ -712,9 +717,8 @@ void drawVisuals()
 		}
 	}
 	
-	SDL_Rect mapSurf = {275, 208, 32, 24};
+	SDL_Rect mapSurf = {274, 207, 32, 24};
 	SDL_Rect playerPixel = {275 + (2*px)/100,208 + (2*py)/100 ,1, 1};
-	//SDL_FillRect(buffer, &mapSurf, SDL_MapRGB(buffer->format,0,0,0));
 	SDL_BlitSurface(gui_minimap, NULL, buffer, &mapSurf);
         SDL_FillRect(buffer, &playerPixel, SDL_MapRGB(buffer->format,255,0,0));
 }
@@ -1110,6 +1114,9 @@ int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight)
 	parallaxBG1 = IMG_Load("gfx/bg1.png");
 	parallaxBG2 = IMG_Load("gfx/bg2.png");
 
+	shootSheetLeft = IMG_Load("gfx/cucumberattackLeft.png");
+	shootSheetRight = IMG_Load("gfx/cucumberattackRight.png");
+
 	gui_HeartFull = IMG_Load("gfx/healthiconStatic.png");
         gui_HeartEmpty = IMG_Load("gfx/heartempty.png");
         gui_minimap = IMG_Load("gfx/mapbackground.png");
@@ -1135,6 +1142,8 @@ int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight)
 	dDown = 0;
 	pCurrentSheet = idleLeftSheet;
 	pDirection = 0;
+	
+	gameWon = 0;
 
 	while(quit == 1)
 	{
@@ -1161,10 +1170,15 @@ int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight)
 		updateOrgan(currTicks);
 		updateEnemyList(currTicks);
 		
+		if (hitTest(px,py, 16, 16, endX-4, endY-4, 8, 8))
+		{
+			gameWon = 1;
+		}
+		
 		endFrame++;
 		endFrame = endFrame % ((betaExitSheet->w)/48);
 		
-		if (pDead == 1)
+		if (pDead == 1 || gameWon == 1)
 		{
 			quit = 0;
 		}
@@ -1210,8 +1224,21 @@ int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight)
 	
 	SDL_FreeSurface(squidSheetUp);
 	SDL_FreeSurface(squidSheetUpDie);
+	
+	SDL_FreeSurface(shootSheetLeft);
+	SDL_FreeSurface(shootSheetRight);
 
 	SDL_FreeSurface(buffer);
-
-	return 0;
+	if (pDead == 1)
+	{
+		return 0;
+	}
+	else if (gameWon == 1)
+	{
+		return 1;
+	}
+	else
+	{
+		return -1;
+	}
 }
