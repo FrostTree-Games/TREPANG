@@ -290,6 +290,8 @@ void updateOrgan(Uint32 currTime)
 		{
 			organBlowingUp = 0;
 			organOnScreen = 0;
+			organX = -1;
+			organY = -1;
 			return;
 		}
 		else
@@ -426,7 +428,7 @@ void updateEnemy(struct enemy* en, Uint32 currTime)
 		
 		en->ex += (int)((en->eXSpeed/1000.0)*(currTime - en->eLastTime));
 		en->ey += (int)((en->eYSpeed/1000.0)*(currTime - en->eLastTime));
-		
+
 		for (i = 0; i < blockCount; i++)
 		{
 			if (hitTest(en->ex, en->ey, 16, 16, blockList[i].x, blockList[i].y, 16, 16))
@@ -455,6 +457,30 @@ void updateEnemy(struct enemy* en, Uint32 currTime)
 				en->eFrame = en->eFrame % ((squidSheetUp->w)/16);
 			}
 		}
+		
+		if (en->dying == 1)
+		{
+			return;
+		}
+		
+		float len = sqrt(pow((double)(abs(px - en->ex)), 2.0) + pow((double)(abs(py - en->ey)), 2.0));
+		float speed = -75.0f;
+
+		if (len < 128)
+		{
+			en->eXSpeed = ((en->ex - px)/len)*speed;
+			en->eYSpeed = ((en->ey - py)/len)*speed;
+		}
+		else
+		{
+			en->eXSpeed = 0.0f;
+			en->eYSpeed = 0.0f;
+		}
+
+		en->ex += (int)((en->eXSpeed/1000.0)*(currTime - en->eLastTime));
+		en->ey += (int)((en->eYSpeed/1000.0)*(currTime - en->eLastTime));
+		
+		en->eLastTime = currTime;
 		break;
 	}
 
@@ -595,6 +621,12 @@ void drawVisuals()
 			SDL_BlitSurface( gui_HeartEmpty, NULL, buffer, &r);
 		}
 	}
+	
+	SDL_Rect mapSurf = {275, 208, 32, 24};
+	SDL_Rect playerPixel = {275 + (2*px)/100,208 + (2*py)/100 ,1, 1};
+	//SDL_FillRect(buffer, &mapSurf, SDL_MapRGB(buffer->format,0,0,0));
+	SDL_BlitSurface(gui_minimap, NULL, buffer, &mapSurf);
+        SDL_FillRect(buffer, &playerPixel, SDL_MapRGB(buffer->format,255,0,0));
 }
 
 void interpretLevel(int grid[][75])
@@ -987,6 +1019,7 @@ int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight)
 
 	gui_HeartFull = IMG_Load("gfx/healthiconStatic.png");
         gui_HeartEmpty = IMG_Load("gfx/heartempty.png");
+        gui_minimap = IMG_Load("gfx/mapbackground.png");
 
 	organOnScreen = 0;
 	organX = 0;

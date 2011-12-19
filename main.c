@@ -46,7 +46,7 @@ int gameBackendSetup()
 		perror("Error on intialzing video memory.");
 		return -1;
 	}
-	
+
 	SDL_WM_SetCaption( "ChordWing", NULL );
 
 	return 0;
@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
 	{
 		return -1;
 	}
-	
+
 	if (init_sound() == -1)
 	{
 		perror("error on sound initalization");
