@@ -524,6 +524,11 @@ void drawVisuals()
 	int i;
 
 	SDL_FillRect(buffer, NULL, SDL_MapRGB(buffer->format,50,50,235));
+	
+	SDL_Rect bgZone = {(Sint16)(px/100) , 0, 320, 240};
+	SDL_BlitSurface(parallaxBG1, &bgZone, buffer, NULL);
+	SDL_Rect bg2Zone = {(Sint16)(px/10), 0 ,320,240};
+	SDL_BlitSurface(parallaxBG2, &bg2Zone, buffer, NULL);
 
 	if (endX > px - (buffer->w)/2 - 16 && endX < px + (buffer->w)/2)
 	{
@@ -1016,6 +1021,9 @@ int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight)
 
 	squidSheetUp = IMG_Load("gfx/SquidIdleUp.png");
 	squidSheetUpDie = IMG_Load("gfx/SquidDieUp.png");
+	
+	parallaxBG1 = IMG_Load("gfx/bg1.png");
+	parallaxBG2 = IMG_Load("gfx/bg2.png");
 
 	gui_HeartFull = IMG_Load("gfx/healthiconStatic.png");
         gui_HeartEmpty = IMG_Load("gfx/heartempty.png");
@@ -1084,6 +1092,39 @@ int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight)
 	}
 
 	free(blockList);
+
+	SDL_FreeSurface(gui_HeartFull);
+	SDL_FreeSurface(gui_HeartEmpty);
+	SDL_FreeSurface(gui_minimap);
+	
+	SDL_FreeSurface(parallaxBG1);
+	SDL_FreeSurface(parallaxBG2);
+	
+	SDL_FreeSurface(pBlockSurface);
+	SDL_FreeSurface(betaExitSheet);
+	
+	SDL_FreeSurface(idleLeftSheet);
+	SDL_FreeSurface(walkLeftSheet);
+	SDL_FreeSurface(idleRightSheet);
+	SDL_FreeSurface(walkRightSheet);
+	SDL_FreeSurface(deathLeftSheet);
+	SDL_FreeSurface(deathRightSheet);
+	
+	SDL_FreeSurface(organAnimation1);
+	SDL_FreeSurface(organAnimation2);
+	SDL_FreeSurface(organAnimation3);
+	SDL_FreeSurface(organDeathAnimation1);
+	SDL_FreeSurface(organDeathAnimation2);
+	SDL_FreeSurface(organDeathAnimation3);
+
+	SDL_FreeSurface(starFishSheet);
+	SDL_FreeSurface(starFishDeathSheet);
+	
+	SDL_FreeSurface(jellyFishSheet);
+	SDL_FreeSurface(jellyFishDeathSheet);
+	
+	SDL_FreeSurface(squidSheetUp);
+	SDL_FreeSurface(squidSheetUpDie);
 
 	SDL_FreeSurface(buffer);
 
