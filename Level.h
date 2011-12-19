@@ -32,6 +32,11 @@ int px;
 int py;
 float runSpeed;
 int pDirection; //flag: 0 -> left, 1 -> right
+int pDying; //flag: 0 -> false, 1 -> true
+int pDead; //flag: 0 -> false, 1 -> true
+
+int pHealth;
+int pMaxHealth;
 
 //organ projectile "physics" information
 int organX;

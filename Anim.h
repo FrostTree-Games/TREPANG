@@ -13,12 +13,18 @@ struct animation* animationList;
 int animationNum;
 
 SDL_Surface* pCurrentSheet;
+
+SDL_Surface* gui_HeartFull;
+SDL_Surface* gui_HeartEmpty;
+
 SDL_Surface* pBlockSurface;
 
 SDL_Surface* idleLeftSheet;
 SDL_Surface* walkLeftSheet;
 SDL_Surface* idleRightSheet;
 SDL_Surface* walkRightSheet;
+SDL_Surface* deathLeftSheet;
+SDL_Surface* deathRightSheet;
 
 SDL_Surface* organAnimation1;
 SDL_Surface* organAnimation2;

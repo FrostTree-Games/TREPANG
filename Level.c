@@ -63,7 +63,20 @@ void updatePlayerLogic(Uint32 currTime)
 	{
 		pLastUpdate = currTime;
 		pFrame++;
+		if (pDying == 1)
+		{
+			if (pFrame >= ((pCurrentSheet->w)/16))
+			{
+				pDead = 1;
+				return;
+			}
+		}
 		pFrame = pFrame % ((pCurrentSheet->w)/16);
+	}
+	
+	if (pDying == 1)
+	{
+		return;
 	}
 
 	float pXSpeed = 0.0f;
@@ -223,6 +236,32 @@ void updatePlayerLogic(Uint32 currTime)
 			if (pYSpeed != 0.0f)
 			{
 				py -= (int)((pYSpeed/1000.0)*tDiff);
+			}
+		}
+	}
+	
+	for (i = 0; i < enemyCount; i++)
+	{
+		if (hitTest(px, py, 16, 16, enemyList[i].ex, enemyList[i].ey, 16, 16) && enemyList[i].dying == 0)
+		{
+			enemyList[i].dying = 1;
+			enemyList[i].eFrame = 0;
+			enemyList[i].eXSpeed = 0.0;
+			enemyList[i].eYSpeed = 0.0;
+			pHealth--;
+			
+			if (pHealth == 0)
+			{
+				pDying = 1;
+				pFrame = 0;
+				if (pDirection == 0)
+				{
+					pCurrentSheet = deathLeftSheet;
+				}
+				else
+				{
+					pCurrentSheet = deathRightSheet;
+				}
 			}
 		}
 	}
@@ -504,6 +543,20 @@ void drawVisuals()
 			}
 		}
 	}
+
+	for (i = 0; i < pMaxHealth; i++)
+	{
+		SDL_Rect r = {(Sint16)(24*i) + 8, 6, 0, 0};
+
+		if (i < pHealth)
+		{
+			SDL_BlitSurface( gui_HeartFull, NULL, buffer, &r);
+		}
+		else
+		{
+			SDL_BlitSurface( gui_HeartEmpty, NULL, buffer, &r);
+		}
+	}
 }
 
 void interpretLevel(int grid[][75])
@@ -780,7 +833,7 @@ void locating_start_end( int grid[][75] )
 					printf("current.y = %d\n", current_y);
 					printf("current.x+i = %d\n", current_x+i);
 					printf("current.y+j = %d\n", current_y+j);
-					
+
 					printf("dijkstra_grid[current_x][current_y] %d\n", dijkstra_grid[current_x][current_y]);
 					printf("dijkstra_grid[current_x+i][current_y+j] %d\n", dijkstra_grid[current_x+i][current_y+j]);*/
 					
@@ -838,8 +891,9 @@ void locating_start_end( int grid[][75] )
 int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight)
 {
 	int quit = 1;
-
-	//printf("one\n");
+	
+	pMaxHealth = 6;
+	pHealth = pMaxHealth;
 
 	int grid[100][75];
 	
@@ -848,8 +902,6 @@ int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight)
 	generateMap(grid);
 	locating_start_end(grid);
 	interpretLevel(grid);
-	
-	//printf("two\n");
 
 	pLastTime = SDL_GetTicks();
 
@@ -861,6 +913,8 @@ int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight)
 	walkLeftSheet = IMG_Load("gfx/cucumberWalkLeft.png");
 	idleRightSheet = IMG_Load("gfx/cucumberidleRight.png");
 	walkRightSheet = IMG_Load("gfx/cucumberWalkRight.png");
+	deathLeftSheet = IMG_Load("gfx/cucumberdieLeft.png");
+	deathRightSheet = IMG_Load("gfx/cucumberDieRight.png");
 	
 	organAnimation1 = IMG_Load("gfx/cucumberGib1.png");
 	organAnimation2 = IMG_Load("gfx/cucumberGib2.png");
@@ -874,7 +928,9 @@ int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight)
 	
 	jellyFishSheet = IMG_Load("gfx/jellyfishIdle.png");
 	jellyFishDeathSheet = IMG_Load("gfx/jellyfishDie.png");
-	
+
+	gui_HeartFull = IMG_Load("gfx/healthiconStatic.png");
+        gui_HeartEmpty = IMG_Load("gfx/heartempty.png");
 
 	organOnScreen = 0;
 	organX = 0;
@@ -889,6 +945,8 @@ int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight)
 	runSpeed = 100.0f;
 	pFrame = 0;
 	pLastUpdate = pLastTime;
+	pDying = 0;
+	pDead = 0;
 	lDown = 0;
 	rDown = 0;
 	uDown = 0;
@@ -920,6 +978,11 @@ int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight)
 		updatePlayerLogic(currTicks);
 		updateOrgan(currTicks);
 		updateEnemyList(currTicks);
+		
+		if (pDead == 1)
+		{
+			quit = 0;
+		}
 
 		drawVisuals();
 
