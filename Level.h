@@ -38,6 +38,10 @@ int pDead; //flag: 0 -> false, 1 -> true
 int pHealth;
 int pMaxHealth;
 
+int endX;
+int endY;
+int endFrame;
+
 //organ projectile "physics" information
 int organX;
 int organY;

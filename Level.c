@@ -479,8 +479,18 @@ void drawVisuals()
 
 	SDL_FillRect(buffer, NULL, SDL_MapRGB(buffer->format,50,50,235));
 
-	//SDL_Rect r = {(Sint16)(buffer->w)/2, (Sint16)(buffer->h)/2, 16, 16};
-	//SDL_FillRect(buffer, &r, SDL_MapRGB(buffer->format, 0, 255, 255));
+	if (endX > px - (buffer->w)/2 - 16 && endX < px + (buffer->w)/2)
+	{
+		if (endY > py - (buffer->h)/2 - 16 && endY < py + (buffer->h)/2)
+		{
+			//decomment next line for badass subway motions
+			//SDL_Rect copypart = {(Sint16)(16*endFrame), 0, 48, 48};
+			SDL_Rect copypart = {(Sint16)(48*endFrame), 0, 48, 48};
+			SDL_Rect finalpos = {(Sint16)(endX - 16 - px + ((buffer->w)/2)), (Sint16)(endY - 16 - py + ((buffer->h)/2)), 0, 0};
+			SDL_BlitSurface(betaExitSheet, &copypart, buffer, &finalpos);
+		}
+	}
+
 	SDL_Rect rFrom = {(Sint16)(16*pFrame), 0, 16, 16};
 	SDL_Rect rTo = {(Sint16)(buffer->w)/2, (Sint16)(buffer->h)/2, 0, 0};
 	SDL_BlitSurface(pCurrentSheet, &rFrom, buffer, &rTo);
@@ -851,8 +861,18 @@ void locating_start_end( int grid[][75] )
 		}
 	//	printf("\n");
 	}
-	int l = 0;
+	int finalX = (rand() % 98) + 1;
+	int finalY = (rand() % 73) + 1;
+	while (grid[finalX][finalY] == 1 || dijkstra_grid[finalX][finalY] < 7 || dijkstra_grid[finalX][finalY] == 999)
+	{
+		printf("bad landing spot\n");
+		finalX = (rand() % 98) + 1;
+		finalY = (rand() % 73) + 1;
+	}
+	endX = 16*finalX;
+	endY = 16*finalY;
 
+	int l = 0;
 	while (l < enemyCount)
 	{
 		int potX = (rand() % 98) + 1;
@@ -908,6 +928,8 @@ int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight)
 	buffer = SDL_CreateRGBSurface(SDL_SWSURFACE, 320, 240, 32, 0, 0, 0, 0);
 
 	pBlockSurface = IMG_Load("gfx/beachtileLEGO.png");
+	betaExitSheet = IMG_Load("gfx/exit.png");
+	endFrame = 0;
 
 	idleLeftSheet = IMG_Load("gfx/cucumberidleLeft.png");
 	walkLeftSheet = IMG_Load("gfx/cucumberWalkLeft.png");
@@ -978,6 +1000,9 @@ int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight)
 		updatePlayerLogic(currTicks);
 		updateOrgan(currTicks);
 		updateEnemyList(currTicks);
+		
+		endFrame++;
+		endFrame = endFrame % ((betaExitSheet->w)/48);
 		
 		if (pDead == 1)
 		{

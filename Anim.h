@@ -18,6 +18,7 @@ SDL_Surface* gui_HeartFull;
 SDL_Surface* gui_HeartEmpty;
 
 SDL_Surface* pBlockSurface;
+SDL_Surface* betaExitSheet;
 
 SDL_Surface* idleLeftSheet;
 SDL_Surface* walkLeftSheet;
