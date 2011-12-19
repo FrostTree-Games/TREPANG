@@ -89,6 +89,12 @@ struct block
 struct block* blockList;
 int blockCount;
 
+//used for hit-checking
+int NE;
+int SE;
+int NW;
+int SW;
+
 // frame animation data
 int pFrame;
 Uint32 pLastUpdate; // last frame jump

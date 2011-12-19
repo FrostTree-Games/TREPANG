@@ -39,6 +39,11 @@ struct Point{
 	int y;
 };
 
+int xor(int value1, int value2)
+{
+	return ( (value1 && !value2) || (!value1 && value2) );
+}
+
 int hitTest(aX, aY, aW, aH, bX, bY, bW, bH)
 {
 	if (aY + aH <= bY || aY >= bY + bH)
@@ -124,7 +129,7 @@ void updatePlayerLogic(Uint32 currTime)
 	if (keystates[SDLK_DOWN])
 	{
 		pYSpeed = runSpeed;
-		if (dDown == 0)
+		/*if (dDown == 0)
 		{
 			if (pDirection == 0)
 			{
@@ -136,12 +141,12 @@ void updatePlayerLogic(Uint32 currTime)
 				pCurrentSheet = walkRightSheet;
 				dDown = 1;
 			}
-		}
+		}           */
 	}
 	else if (keystates[SDLK_UP])
 	{
 		pYSpeed = -runSpeed;
-		if (uDown == 0)
+		/*if (uDown == 0)
 		{
 			if (pDirection == 0)
 			{
@@ -153,11 +158,11 @@ void updatePlayerLogic(Uint32 currTime)
 				pCurrentSheet = walkRightSheet;
 				uDown = 1;
 			}
-		}
+		}      */
 	}
 	else
 	{
-		if (uDown == 1 || dDown == 1)
+		/*if (uDown == 1 || dDown == 1)
 		{
 			if (pDirection == 0)
 			{
@@ -172,7 +177,7 @@ void updatePlayerLogic(Uint32 currTime)
 				dDown = 0;
 			}
 			pFrame = 0;
-		}
+		}    */
 		pYSpeed = 0.0f;
 	}
 	
@@ -226,21 +231,79 @@ void updatePlayerLogic(Uint32 currTime)
 	px += (int)((pXSpeed/1000.0)*tDiff);
 	py += (int)((pYSpeed/1000.0)*tDiff);
 
+	NE = 0;
+	NW = 0;
+	SE = 0;
+	SW = 0;
 	for (i = 0; i < blockCount; i++)
 	{
-		if (hitTest(px, py, 16, 16, blockList[i].x, blockList[i].y, 16, 16))
+		if (hitTest(px+2,py+2,6,6, blockList[i].x, blockList[i].y, 16, 16))
 		{
-			if (pXSpeed != 0.0f)
-			{
-				px -= (int)((pXSpeed/1000.0)*tDiff);
-			}
-			if (pYSpeed != 0.0f)
-			{
-				py -= (int)((pYSpeed/1000.0)*tDiff);
-			}
+			NE = 1;
+		}
+		if (hitTest(px+8,py+2,6,6, blockList[i].x, blockList[i].y, 16, 16))
+		{
+			NW = 1;
+		}
+		if (hitTest(px+2,py+8,6,6, blockList[i].x, blockList[i].y, 16, 16))
+		{
+			SE = 1;
+		}
+		if (hitTest(px+8,py+8,6,6, blockList[i].x, blockList[i].y, 16, 16))
+		{
+			SW = 1;
 		}
 	}
 	
+	int pBackX = 0;
+	int pBackY = 0;
+
+	if (xor(xor(NE, NW), xor(SE, SW)))
+	{
+		if (pXSpeed > 0.0f && (NW || SW))
+		{
+			px -= (int)((pXSpeed/1000.0)*tDiff);
+		}
+		if (pXSpeed < 0.0f && (NE || SE))
+		{
+			px -= (int)((pXSpeed/1000.0)*tDiff);
+		}
+		if (pYSpeed > 0.0f && (SE || SW))
+		{
+			py -= (int)((pYSpeed/1000.0)*tDiff);
+		}
+		if (pYSpeed < 0.0f && (NE || NW))
+		{
+			py -= (int)((pYSpeed/1000.0)*tDiff);
+		}
+	}
+
+	if ( (NE && NW && !SE && !SW) || (SE && SW && !NE && !NW) )
+	{
+		py -= (int)((pYSpeed/1000.0)*tDiff);
+	}
+	if ( (NE && SE && !NW && !SW) || (NW && SW && !NE && !SE))
+	{
+		px -= (int)((pXSpeed/1000.0)*tDiff);
+	}
+
+
+	/*
+	if (pXSpeed != 0.0f)
+	{
+		if ((NE || SE) || (NW || SW))
+		{
+			px -= (int)((pXSpeed/1000.0)*tDiff);
+		}
+	}
+	if (pYSpeed != 0.0f)
+	{
+		if ((NE || NW) || (SE || SW))
+		{
+			py -= (int)((pYSpeed/1000.0)*tDiff);
+		}
+	}     */
+
 	for (i = 0; i < enemyCount; i++)
 	{
 		if (hitTest(px, py, 16, 16, enemyList[i].ex, enemyList[i].ey, 16, 16) && enemyList[i].dying == 0)
@@ -541,21 +604,7 @@ void drawVisuals()
 			SDL_BlitSurface(betaExitSheet, &copypart, buffer, &finalpos);
 		}
 	}
-
-	SDL_Rect rFrom = {(Sint16)(16*pFrame), 0, 16, 16};
-	SDL_Rect rTo = {(Sint16)(buffer->w)/2, (Sint16)(buffer->h)/2, 0, 0};
-	SDL_BlitSurface(pCurrentSheet, &rFrom, buffer, &rTo);
-
-	//draw organ
-	if( organOnScreen == 1)
-	{
-		//SDL_Rect organRect = {(Sint16)(organX - px + ((buffer->w)/2)), (Sint16)(organY - py + ((buffer->h)/2)), 16, 16};
-		//SDL_FillRect(buffer, &organRect, SDL_MapRGB(buffer->format, 155,155,155));
-		SDL_Rect organRectFrom = {(Sint16)(16*organFrame), 0, 16, 16};
-		SDL_Rect organRectTo = {(Sint16)(organX - px + ((buffer->w)/2)), (Sint16)(organY - py + ((buffer->h)/2)), 0, 0};
-		SDL_BlitSurface(organCurrentSheet, &organRectFrom, buffer, &organRectTo);
-	}
-
+	
 	for (i = 0; i < blockCount; i++)
 	{
 		if (blockList[i].x > px - (buffer->w)/2 - 16 && blockList[i].x < px + (buffer->w)/2)
@@ -567,7 +616,43 @@ void drawVisuals()
 			}
 		}
 	}
-	
+
+	SDL_Rect rFrom = {(Sint16)(16*pFrame), 0, 16, 16};
+	SDL_Rect rTo = {(Sint16)(buffer->w)/2, (Sint16)(buffer->h)/2, 0, 0};
+	SDL_BlitSurface(pCurrentSheet, &rFrom, buffer, &rTo);
+
+	/*
+	if (NE)
+	{
+		SDL_Rect square = {(Sint16)((buffer->w)/2 + 2), (Sint16)((buffer->h)/2 + 2), 6, 6};
+		SDL_FillRect(buffer, &square, SDL_MapRGB(buffer->format, 255,0,0));
+	}
+	if (NW)
+	{
+		SDL_Rect square = {(Sint16)((buffer->w)/2 + 8), (Sint16)((buffer->h)/2 + 2), 6, 6};
+		SDL_FillRect(buffer, &square, SDL_MapRGB(buffer->format, 255,0,0));
+	}
+	if (SE)
+	{
+		SDL_Rect square = {(Sint16)((buffer->w)/2 + 2), (Sint16)((buffer->h)/2 + 8), 6, 6};
+		SDL_FillRect(buffer, &square, SDL_MapRGB(buffer->format, 255,0,0));
+	}
+	if (SW)
+	{
+		SDL_Rect square = {(Sint16)((buffer->w)/2 + 8), (Sint16)((buffer->h)/2 + 8), 6, 6};
+		SDL_FillRect(buffer, &square, SDL_MapRGB(buffer->format, 255,0,0));
+	} */
+
+	//draw organ
+	if( organOnScreen == 1)
+	{
+		//SDL_Rect organRect = {(Sint16)(organX - px + ((buffer->w)/2)), (Sint16)(organY - py + ((buffer->h)/2)), 16, 16};
+		//SDL_FillRect(buffer, &organRect, SDL_MapRGB(buffer->format, 155,155,155));
+		SDL_Rect organRectFrom = {(Sint16)(16*organFrame), 0, 16, 16};
+		SDL_Rect organRectTo = {(Sint16)(organX - px + ((buffer->w)/2)), (Sint16)(organY - py + ((buffer->h)/2)), 0, 0};
+		SDL_BlitSurface(organCurrentSheet, &organRectFrom, buffer, &organRectTo);
+	}
+
 	for (i = 0; i < enemyCount; i++)
 	{
 		if (enemyList[i].ex > px - (buffer->w)/2 - 16 && enemyList[i].ex < px + (buffer->w)/2 && enemyList[i].dead == 0)
