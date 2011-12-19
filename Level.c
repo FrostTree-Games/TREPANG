@@ -29,6 +29,7 @@
 #include "SDL/SDL_image.h"
 #include "Level.h"
 #include "Anim.h"
+#include "Sound.h"
 
 #define x_length 100
 #define y_length 75
@@ -426,22 +427,35 @@ void updateEnemy(struct enemy* en, Uint32 currTime)
 		en->ex += (int)((en->eXSpeed/1000.0)*(currTime - en->eLastTime));
 		en->ey += (int)((en->eYSpeed/1000.0)*(currTime - en->eLastTime));
 		
+		for (i = 0; i < blockCount; i++)
+		{
+			if (hitTest(en->ex, en->ey, 16, 16, blockList[i].x, blockList[i].y, 16, 16))
+			{
+				en->ex -= (int)(1.5*(en->eXSpeed/1000.0)*(currTime - en->eLastTime));
+				en->ey -= (int)(1.5*(en->eYSpeed/1000.0)*(currTime - en->eLastTime));
+				en->eXSpeed = 0.0f;
+				en->eYSpeed = 0.0f;
+			}
+		}
+		
 		en->eLastTime = currTime;
 		break;
 		case CHASE:
-		break;
-	}
-	
-	for (i = 0; i < blockCount; i++)
-	{
-		if (hitTest(en->ex, en->ey, 16, 16, blockList[i].x, blockList[i].y, 16, 16))
+                if (currTime - en->eLastUpdate > 83)
 		{
-			en->ex -= (int)(1.5*(en->eXSpeed/1000.0)*(currTime - en->eLastTime));
-			en->ey -= (int)(1.5*(en->eYSpeed/1000.0)*(currTime - en->eLastTime));
-			en->eXSpeed = 0.0f;
-			en->eYSpeed = 0.0f;
-			en->flip *= -1;
+			en->eLastUpdate = currTime;
+			en->eFrame++;
+			if (en->dying == 1 && en->eFrame >= ((squidSheetUpDie->w)/16))
+			{
+				en->dead = 1;
+				return;
+			}
+			else
+			{
+				en->eFrame = en->eFrame % ((squidSheetUp->w)/16);
+			}
 		}
+		break;
 	}
 
 	if (hitTest(en->ex, en->ey, 16, 16, organX, organY, 16, 16) && en->dying == 0)
@@ -457,6 +471,12 @@ void updateEnemy(struct enemy* en, Uint32 currTime)
 			case CHILL:
 			en->dying = 1;
 			en->eFrame = 0;
+			break;
+			case CHASE:
+			en->dying = 1;
+			en->eFrame = 0;
+			en->eXSpeed = 0.0f;
+			en->eYSpeed = 0.0f;
 			break;
 		}
 	}
@@ -513,7 +533,6 @@ void drawVisuals()
 			{
 				SDL_Rect r = {(Sint16)(blockList[i].x - px + ((buffer->w)/2)), (Sint16)(blockList[i].y - py + ((buffer->h)/2)), 16, 16};
 				SDL_BlitSurface( pBlockSurface, NULL, buffer, &r);
-				//SDL_FillRect(buffer, &r, SDL_MapRGB(buffer->format, 0, 0, 0));
 			}
 		}
 	}
@@ -547,7 +566,16 @@ void drawVisuals()
 					{
 						SDL_BlitSurface(jellyFishSheet , &rFrom, buffer, &rTo);
 					}
-					default:
+					break;
+					case CHASE:
+					if (enemyList[i].dying == 1)
+					{
+						SDL_BlitSurface(squidSheetUpDie, &rFrom, buffer, &rTo);
+					}
+					else
+					{
+						SDL_BlitSurface(squidSheetUp , &rFrom, buffer, &rTo);
+					}
 					break;
 				}
 			}
@@ -886,13 +914,16 @@ void locating_start_end( int grid[][75] )
 		enemyList[l].ey = potY*16;
 		enemyList[l].eXSpeed = 0.0f;
 		enemyList[l].eYSpeed = 0.0f;
-		switch (rand() % 2)
+		switch (rand() % 3)
 		{
 			case 0:
-				enemyList[l].ai = CHILL;
+			enemyList[l].ai = CHILL;
 			break;
 			case 1:
-				enemyList[l].ai = WIGGLE;
+			enemyList[l].ai = WIGGLE;
+			break;
+			case 2:
+			enemyList[l].ai = CHASE;
 			break;
 		}
 		enemyList[l].eLastUpdate = SDL_GetTicks();
@@ -937,7 +968,7 @@ int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight)
 	walkRightSheet = IMG_Load("gfx/cucumberWalkRight.png");
 	deathLeftSheet = IMG_Load("gfx/cucumberdieLeft.png");
 	deathRightSheet = IMG_Load("gfx/cucumberDieRight.png");
-	
+
 	organAnimation1 = IMG_Load("gfx/cucumberGib1.png");
 	organAnimation2 = IMG_Load("gfx/cucumberGib2.png");
 	organAnimation3 = IMG_Load("gfx/cucumberGib3.png");
@@ -950,6 +981,9 @@ int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight)
 	
 	jellyFishSheet = IMG_Load("gfx/jellyfishIdle.png");
 	jellyFishDeathSheet = IMG_Load("gfx/jellyfishDie.png");
+
+	squidSheetUp = IMG_Load("gfx/SquidIdleUp.png");
+	squidSheetUpDie = IMG_Load("gfx/SquidDieUp.png");
 
 	gui_HeartFull = IMG_Load("gfx/healthiconStatic.png");
         gui_HeartEmpty = IMG_Load("gfx/heartempty.png");

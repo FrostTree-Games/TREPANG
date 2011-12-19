@@ -40,6 +40,9 @@ SDL_Surface* starFishDeathSheet;
 SDL_Surface* jellyFishSheet;
 SDL_Surface* jellyFishDeathSheet;
 
+SDL_Surface* squidSheetUp;
+SDL_Surface* squidSheetUpDie;
+
 int loadAnims();
 
 int freeAnims();
