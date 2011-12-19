@@ -82,7 +82,7 @@ void updatePlayerLogic(Uint32 currTime)
 				{
 					pCurrentSheet = idleRightSheet;
 				}
-			}	
+			}
 		}
 		if (pDying == 1)
 		{
@@ -703,20 +703,34 @@ void drawVisuals()
 		}
 	}
 
-	for (i = 0; i < pMaxHealth; i++)
+	int hDelta = 0;
+	for (i = 0; i < pMaxHealth;i++)
 	{
-		SDL_Rect r = {(Sint16)(24*i) + 8, 6, 0, 0};
+		if (i % 2 == 1)
+		{
+			continue;
+		}	
+		SDL_Rect r = {(Sint16)(9*hDelta) + 216, 220, 0, 0};
 
 		if (i < pHealth)
 		{
-			SDL_BlitSurface( gui_HeartFull, NULL, buffer, &r);
+			if (i == pHealth - 1)
+			{
+				SDL_BlitSurface( gui_HeartHalf, NULL, buffer, &r);
+			}
+			else
+			{
+				SDL_BlitSurface( gui_HeartFull, NULL, buffer, &r);
+			}
+			hDelta++;
 		}
 		else
 		{
 			SDL_BlitSurface( gui_HeartEmpty, NULL, buffer, &r);
+			hDelta++;
 		}
 	}
-	
+
 	SDL_Rect mapSurf = {274, 207, 32, 24};
 	SDL_Rect playerPixel = {275 + (2*px)/100,208 + (2*py)/100 ,1, 1};
 	SDL_BlitSurface(gui_minimap, NULL, buffer, &mapSurf);
@@ -1069,7 +1083,7 @@ int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight)
 {
 	int quit = 1;
 	
-	pMaxHealth = 6;
+	pMaxHealth = 12;
 	pHealth = pMaxHealth;
 
 	int grid[100][75];
@@ -1117,8 +1131,9 @@ int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight)
 	shootSheetLeft = IMG_Load("gfx/cucumberattackLeft.png");
 	shootSheetRight = IMG_Load("gfx/cucumberattackRight.png");
 
-	gui_HeartFull = IMG_Load("gfx/healthiconStatic.png");
-        gui_HeartEmpty = IMG_Load("gfx/heartempty.png");
+	gui_HeartFull = IMG_Load("gfx/fullheartsmall.png");
+	gui_HeartHalf = IMG_Load("gfx/halfheartSMALL.png");
+        gui_HeartEmpty = IMG_Load("gfx/emptyheartsmall.png");
         gui_minimap = IMG_Load("gfx/mapbackground.png");
 
 	organOnScreen = 0;

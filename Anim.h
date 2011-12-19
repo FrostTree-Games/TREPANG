@@ -17,6 +17,7 @@ SDL_Surface* pCurrentSheet;
 
 SDL_Surface* gui_HeartFull;
 SDL_Surface* gui_HeartEmpty;
+SDL_Surface* gui_HeartHalf;
 SDL_Surface* gui_minimap;
 
 SDL_Surface* parallaxBG1;
