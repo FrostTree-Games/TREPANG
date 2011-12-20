@@ -322,9 +322,9 @@ void updatePlayerLogic(Uint32 currTime)
 			enemyList[i].eFrame = 0;
 			enemyList[i].eXSpeed = 0.0;
 			enemyList[i].eYSpeed = 0.0;
-			pHealth--;
+			pHealth -= 2;
 			
-			if (pHealth == 0)
+			if (pHealth <= 0)
 			{
 				pDying = 1;
 				pFrame = 0;
@@ -620,9 +620,9 @@ void drawVisuals()
 	
 	for (i = 0; i < blockCount; i++)
 	{
-		if (blockList[i].x > px - (buffer->w)/2 - 16 && blockList[i].x < px + (buffer->w)/2)
+		if (blockList[i].x > px - (buffer->w)/2 - 16 - 32 && blockList[i].x < px + (buffer->w)/2 + 32)
 		{
-			if (blockList[i].y > py - (buffer->h)/2 - 16 && blockList[i].y < py + (buffer->h)/2)
+			if (blockList[i].y > py - (buffer->h)/2 - 16 -32 && blockList[i].y < py + (buffer->h)/2 + 32)
 			{
 				SDL_Rect r = {(Sint16)(blockList[i].x - px + ((buffer->w)/2)), (Sint16)(blockList[i].y - py + ((buffer->h)/2)), 16, 16};
 				SDL_BlitSurface( pBlockSurface, NULL, buffer, &r);
