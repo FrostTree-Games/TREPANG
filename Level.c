@@ -198,8 +198,12 @@ void updatePlayerLogic(Uint32 currTime)
 	
 	if (keystates[SDLK_z])
 	{
-		if (organOnScreen == 0)
+		if (organOnScreen == 0 && pHealth > 1)
 		{
+			//play sound
+			spit_sound();
+			pHealth--;
+
 			time_t seconds;
 			time(&seconds);
 			srand((unsigned int) seconds);
@@ -313,6 +317,7 @@ void updatePlayerLogic(Uint32 currTime)
 	{
 		if (hitTest(px, py, 16, 16, enemyList[i].ex, enemyList[i].ey, 16, 16) && enemyList[i].dying == 0)
 		{
+			explode_sound();
 			enemyList[i].dying = 1;
 			enemyList[i].eFrame = 0;
 			enemyList[i].eXSpeed = 0.0;
@@ -554,6 +559,9 @@ void updateEnemy(struct enemy* en, Uint32 currTime)
 
 	if (hitTest(en->ex, en->ey, 16, 16, organX, organY, 16, 16) && en->dying == 0)
 	{
+		//play an exploding sound
+		explode_sound();
+
 		switch (en->ai)
 		{
 			case WIGGLE:
@@ -709,7 +717,7 @@ void drawVisuals()
 		if (i % 2 == 1)
 		{
 			continue;
-		}	
+		}
 		SDL_Rect r = {(Sint16)(9*hDelta) + 216, 220, 0, 0};
 
 		if (i < pHealth)
@@ -1082,9 +1090,6 @@ void locating_start_end( int grid[][75] )
 int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight)
 {
 	int quit = 1;
-	
-	pMaxHealth = 12;
-	pHealth = pMaxHealth;
 
 	int grid[100][75];
 	
@@ -1155,6 +1160,7 @@ int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight)
 	rDown = 0;
 	uDown = 0;
 	dDown = 0;
+	escDown = 0;
 	pCurrentSheet = idleLeftSheet;
 	pDirection = 0;
 	
@@ -1175,7 +1181,18 @@ int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight)
 		keystates = SDL_GetKeyState(NULL);
 		if (keystates[SDLK_ESCAPE])
 		{
-			quit = 0;
+			if (escDown == 0)
+			{
+				escDown = 1;
+			}
+		}
+		else
+		{
+			if (escDown == 1)
+			{
+				quit = 0;
+				escDown = 0;
+			}
 		}
 
 		// time diff

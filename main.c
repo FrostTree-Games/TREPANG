@@ -88,7 +88,7 @@ int main(int argc, char* argv[])
 		perror("error on font loading");
 		return -1;
 	}
-	
+
 	/*if (loadAnims() == -1)
 	{
 		return -1;
@@ -96,9 +96,30 @@ int main(int argc, char* argv[])
 
 	//playBGM();
 	
-	//titleScreen(screen);
+	int screenValue = 0;
+	
+	while (screenValue == 0)
+	{
+		playBGM2();
+		if (titleScreen(screen) == -1)
+		{
+			deinit_sound();
+			gameBackendClose();
+			return 0;
+		}
+		stopBGM();
+		playBGM();
 
-	while (doLevel(screen, 320, 240) == 1);
+		pMaxHealth = 12;
+		pHealth = pMaxHealth;
+		
+		while (doLevel(screen, 320, 240) == 1)
+		{
+			stopBGM();
+			nextLevelScreen(screen);
+			playBGM();
+		}
+	}
 
 	//freeAnims();
 

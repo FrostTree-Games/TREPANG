@@ -51,6 +51,12 @@ SDL_Surface* jellyFishDeathSheet;
 SDL_Surface* squidSheetUp;
 SDL_Surface* squidSheetUpDie;
 
+SDL_Surface* titleImg;
+SDL_Surface* titleImgBlink;
+SDL_Surface* levelCompleteImg;
+
+SDL_Surface* bubbleBG;
+
 TTF_Font* font;
 
 int loadAnims();

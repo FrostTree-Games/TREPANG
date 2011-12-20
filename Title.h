@@ -25,3 +25,4 @@
 SDL_Surface* titleBuffer;
 
 int titleScreen(SDL_Surface* screen);
+int nextLevelScreen(SDL_Surface* screen);

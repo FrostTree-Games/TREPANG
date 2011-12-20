@@ -105,6 +105,7 @@ int rDown;
 int uDown;
 int dDown;
 int zDown;
+int escDown;
 
 int gameWon; //flag: 0 -> false, 1 -> true
 

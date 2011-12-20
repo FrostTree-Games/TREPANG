@@ -44,10 +44,16 @@ int init_sound()
 		perror("error loading danube.ogg");
 		return -1;
 	}
-	
+	titleMusic = Mix_LoadMUS("bgm/menumusic.ogg");
+	if (music == NULL)
+	{
+		perror("error loading menumusic.ogg");
+		return -1;
+	}
+
 	heart = Mix_LoadWAV("bgm/heart.WAV");
-	explode = Mix_LoadWAV("bgm/explode.WAV");
-	spit = Mix_LoadWAV("bgm/spitShort.WAV");
+	explode = Mix_LoadWAV("sfx/explode.wav");
+	spit = Mix_LoadWAV("sfx/shoot.wav");
 	move = Mix_LoadWAV("bgm/moveSound.WAV");
 
 	if((heart == NULL) || (explode==NULL) || (spit == NULL) || (move == NULL))
@@ -66,9 +72,33 @@ void playBGM()
 	}
 }
 
+void stopBGM()
+{
+	Mix_HaltMusic();
+}
+
+void playBGM2()
+{
+	if (titleMusic != NULL)
+	{
+		Mix_PlayMusic(titleMusic, -1);
+	}
+}
+
+void stopBGM2()
+{
+	//
+}
+
 void deinit_sound()
 {
 	Mix_FreeMusic(music);
+	Mix_FreeMusic(titleMusic);
+
+	Mix_FreeChunk(heart);
+	Mix_FreeChunk(explode);
+	Mix_FreeChunk(spit);
+	Mix_FreeChunk(move);
 
 	// close SDL_mixer
 	Mix_CloseAudio();

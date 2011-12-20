@@ -25,6 +25,7 @@
 
 //Mix_Music* testBGM;
 Mix_Music* music;
+Mix_Music* titleMusic;
 
 Mix_Chunk* heart;
 Mix_Chunk* explode;
@@ -40,3 +41,6 @@ int spit_sound();
 int heart_sound();
 
 void playBGM();
+void stopBGM();
+void playBGM2();
+void stopBGM2();
