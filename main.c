@@ -43,7 +43,7 @@ int gameBackendSetup()
 	}
 	
 	// initalizes the screen pointer to the screen
-	if ((screen = SDL_SetVideoMode( 320, 240, 32, SDL_SWSURFACE/* | SDL_FULLSCREEN*/)) == NULL)
+	if ((screen = SDL_SetVideoMode( 320, 240, 32, SDL_SWSURFACE | SDL_FULLSCREEN)) == NULL)
 	{
 		perror("Error on intialzing video memory.");
 		return -1;
