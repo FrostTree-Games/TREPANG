@@ -36,8 +36,8 @@ int init_sound()
 	if( Mix_OpenAudio( 22050, MIX_DEFAULT_FORMAT, 2, 4096 ) == -1 )
 	{
 		return -1;
-	}
-	
+	}   
+
 	music = Mix_LoadMUS("bgm/danube.ogg");
 	if (music == NULL)
 	{

@@ -1062,25 +1062,25 @@ void locating_start_end( int grid[][75] )
 		enemyList[l].ey = potY*16;
 		enemyList[l].eXSpeed = 0.0f;
 		enemyList[l].eYSpeed = 0.0f;
-		switch (rand() % 3)
+		i = rand() % 3;
+		if (i == 0)
 		{
-			case 0:
 			enemyList[l].ai = CHILL;
-			break;
-			case 1:
+		}
+		else if (i == 1)
+		{
 			enemyList[l].ai = WIGGLE;
-			break;
-			case 2:
+		}
+		else
+		{
 			enemyList[l].ai = CHASE;
-			break;
 		}
 		enemyList[l].eLastUpdate = SDL_GetTicks();
 		enemyList[l].eLastTime = SDL_GetTicks();
 		enemyList[l].eLastSwitch = SDL_GetTicks();
 		enemyList[l].eFrame = 0;
-        enemyList[l].dead = 0;
-        enemyList[l].flip = 1;
-		
+	        enemyList[l].dead = 0;
+	        enemyList[l].flip = 1;
 		l++;
 	}
 	//print_dijkstra( dijkstra_grid );
