@@ -133,7 +133,7 @@ int titleScreen(SDL_Surface* screen)
 		SDL_Delay(20);
 	}
 	
-	SDL_FreeSurface(buffer);
+	SDL_FreeSurface(titleBuffer);
 	SDL_FreeSurface(titleImg);
 	SDL_FreeSurface(titleImgBlink);
 
@@ -181,6 +181,7 @@ int nextLevelScreen(SDL_Surface* screen)
 	}
 
 	SDL_FreeSurface(levelCompleteImg);
+	SDL_FreeSurface(titleBuffer);
 	
 	return 0;
 }

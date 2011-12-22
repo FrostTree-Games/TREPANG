@@ -378,7 +378,7 @@ void updateOrgan(Uint32 currTime)
 	
 	for (i = 0; i < blockCount; i++)
 	{
-		if (hitTest(organX, organY, 16, 16, blockList[i].x, blockList[i].y, 16, 16))
+		if (hitTest(organX+6, organY+6, 4, 4, blockList[i].x, blockList[i].y, 16, 16))
 		{
 			//organOnScreen = 0;
 			if (organBlowingUp == 0)
@@ -750,7 +750,6 @@ void interpretLevel(int grid[][75])
 	int i,j;
 
 	blockCount = 0;
-	blockList = malloc(100 * 75 * sizeof(struct block));
 
 	for (i = 0; i < 100; i++)
 	{
@@ -1051,8 +1050,8 @@ void locating_start_end( int grid[][75] )
 	int l = 0;
 	while (l < enemyCount)
 	{
-		int potX = (rand() % 98) + 1;
-		int potY = (rand() % 73) + 1;
+		int potX = (rand() % 96) + 2;
+		int potY = (rand() % 71) + 2;
 		if (grid[potX][potY] == 1)
 		{
 			l--;
@@ -1080,6 +1079,7 @@ void locating_start_end( int grid[][75] )
 		enemyList[l].eLastSwitch = SDL_GetTicks();
 		enemyList[l].eFrame = 0;
 	        enemyList[l].dead = 0;
+	        enemyList[l].dying = 0;
 	        enemyList[l].flip = 1;
 		l++;
 	}
@@ -1092,6 +1092,7 @@ int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight)
 	int quit = 1;
 
 	int grid[100][75];
+	blockList = malloc(100 * 75 * sizeof(struct block));
 	
 	enemyCount = 50;
 
@@ -1225,6 +1226,7 @@ int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight)
 	free(blockList);
 
 	SDL_FreeSurface(gui_HeartFull);
+	SDL_FreeSurface(gui_HeartHalf);
 	SDL_FreeSurface(gui_HeartEmpty);
 	SDL_FreeSurface(gui_minimap);
 	

@@ -43,7 +43,7 @@ int gameBackendSetup()
 	}
 	
 	// initalizes the screen pointer to the screen
-	if ((screen = SDL_SetVideoMode( 320, 240, 32, SDL_SWSURFACE | SDL_FULLSCREEN)) == NULL)
+	if ((screen = SDL_SetVideoMode( 320, 240, 32, SDL_SWSURFACE/* | SDL_FULLSCREEN*/)) == NULL)
 	{
 		perror("Error on intialzing video memory.");
 		return -1;
@@ -89,13 +89,6 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
-	/*if (loadAnims() == -1)
-	{
-		return -1;
-	} */
-
-	//playBGM();
-	
 	int screenValue = 0;
 	
 	while (screenValue == 0)
@@ -103,9 +96,9 @@ int main(int argc, char* argv[])
 		playBGM2();
 		if (titleScreen(screen) == -1)
 		{
-			deinit_sound();
-			gameBackendClose();
-			return 0;
+			screenValue = 1;
+			stopBGM();
+			continue;
 		}
 		stopBGM();
 		playBGM();
@@ -119,6 +112,7 @@ int main(int argc, char* argv[])
 			nextLevelScreen(screen);
 			playBGM();
 		}
+		stopBGM();
 	}
 
 	//freeAnims();
