@@ -128,7 +128,8 @@ int titleScreen(SDL_Surface* screen)
 			SDL_BlitSurface(titleImgBlink, NULL, titleBuffer, NULL);
 		}
 
-		SDL_BlitSurface(titleBuffer, NULL, screen, NULL);
+		//SDL_BlitSurface(titleBuffer, NULL, screen, NULL);
+		SDL_SoftStretch(titleBuffer, NULL, screen, NULL);
 		SDL_Flip(screen);
 		SDL_Delay(20);
 	}
@@ -173,7 +174,8 @@ int nextLevelScreen(SDL_Surface* screen)
 		}
 
 		SDL_BlitSurface(levelCompleteImg, NULL, titleBuffer, NULL);
-		SDL_BlitSurface(titleBuffer, NULL, screen, NULL);
+		//SDL_BlitSurface(titleBuffer, NULL, screen, NULL);
+		SDL_SoftStretch(titleBuffer, NULL, screen, NULL);
 		SDL_Flip(screen);
 		
 		SDL_Delay(20);

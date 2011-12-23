@@ -1087,7 +1087,7 @@ void locating_start_end( int grid[][75] )
 }
 
 
-int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight)
+int doLevel(SDL_Surface* screen, int screenWidth, int screenHeight)
 {
 	int quit = 1;
 
@@ -1218,7 +1218,8 @@ int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight)
 
 		drawVisuals();
 
-		SDL_BlitSurface(buffer, NULL, screen, NULL);
+		//SDL_BlitSurface(buffer, NULL, screen, NULL);
+		SDL_SoftStretch(buffer, NULL, screen, NULL);
 		SDL_Flip(screen);
 		SDL_Delay(20);
 	}

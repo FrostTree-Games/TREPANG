@@ -113,7 +113,7 @@ int gameWon; //flag: 0 -> false, 1 -> true
 SDL_Surface* buffer;
 
 //notable methods
-int doLevel(SDL_Surface* screen, int levelWidth, int levelHeight);
+int doLevel(SDL_Surface* screen, int screenWidth, int screenHeight);
 void locating_start_end( int grid[][75] );
 
 
